@@ -20,7 +20,7 @@ public class LexicalAnalyzerTest {
 	
 	@Test
 	public void testGetNextToken(){
-		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(new ArrayList<TokenType>(), "inteiro a <- 34; booleano b ;");
+		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(new ArrayList<TokenType>(), "inteiro a <- 34;\nbooleano% b;\nexecuta(inteiroa, bollean b, inteiro a");
 		lexicalAnalyzer.addTokenType(0, "executa", "EXECUTA");
 		lexicalAnalyzer.addTokenType(1, "\\(", "abre_parenteses");
 		lexicalAnalyzer.addTokenType(2, "\\)", "fecha_parenteses");
@@ -53,6 +53,7 @@ public class LexicalAnalyzerTest {
 		lexicalAnalyzer.addTokenType(29, ",", "VIRGULA");
 		lexicalAnalyzer.addTokenType(30, "[0-9]+", "NUMEROS");
 		lexicalAnalyzer.addTokenType(31, "[a-z][a-zA-Z0-9]*", "ID");
+		
 		Token token = lexicalAnalyzer.getNextToken();
 		String print = "";
 		while(token != null){

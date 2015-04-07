@@ -7,7 +7,12 @@ public class TokenType {
 	private final String typeName;
 	private int typeId;
 	private final int id;
-
+	/**
+	 * Construtor do TokenType
+	 * @param id
+	 * @param regularExpression
+	 * @param typeName
+	 */
 	public TokenType(int id, Pattern regularExpression, String typeName) {
 		super();
 		this.id = id;

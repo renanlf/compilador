@@ -7,6 +7,11 @@ public class Token {
 	private final int id;
 	private final String expression;
 	
+	/**
+	 * construtor do Token
+	 * @param tokenType
+	 * @param expression
+	 */
 	public Token(TokenType tokenType,
 			String expression) {
 		
