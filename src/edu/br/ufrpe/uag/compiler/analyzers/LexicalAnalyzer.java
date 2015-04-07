@@ -6,22 +6,22 @@ import java.util.regex.Pattern;
 
 import edu.br.ufrpe.uag.compiler.exceptions.LexicalException;
 import edu.br.ufrpe.uag.compiler.model.Token;
-import edu.br.ufrpe.uag.compiler.model.TokenType;
+import edu.br.ufrpe.uag.compiler.model.Terminal;
 
 public class LexicalAnalyzer {
-	private final ArrayList<TokenType> tokenTypes;
+	private final ArrayList<Terminal> terminals;
 	private final String[] sequence;
 	private int row;
 	private String sequenceRow;
 
 	/**
 	 * Construtor do analisador lexico.
-	 * @param arrayList array contendo os TokenTypes
+	 * @param arrayList array contendo os Terminals
 	 * @param string
 	 */
-	public LexicalAnalyzer(ArrayList<TokenType> tokenTypes, String string) {
+	public LexicalAnalyzer(ArrayList<Terminal> terminals, String string) {
 		super();
-		this.tokenTypes = tokenTypes;
+		this.terminals = terminals;
 		String[] newSequence = string.split("\n");
 		this.sequence = newSequence;
 		this.row = 0;
@@ -36,7 +36,7 @@ public class LexicalAnalyzer {
 		if(sequenceRow.length() > 0){
 			removeInitialSpace();
 			//laço que varre os tokens até encontrar algum que satisfaça a condição interna.
-			for(TokenType tokenType : tokenTypes){
+			for(Terminal tokenType : terminals){
 				Matcher m = tokenType.getRegularExpression().matcher(sequenceRow);
 				if(m.find()){
 					//salva em expression qual foi o texto encontrado.
@@ -64,15 +64,15 @@ public class LexicalAnalyzer {
 		}
 	}
 	/**
-	 * método que adiciona um TokenType na lista do analisador léxico.
+	 * método que adiciona um Terminal na lista do analisador léxico.
 	 * @param id
 	 * @param regularExpression
 	 * @param name
 	 * @return
 	 */
-	public boolean addTokenType(int id, String regularExpression, String name){
-		TokenType tokenType = new TokenType(id, Pattern.compile("^("+regularExpression+")"), name);
-		return tokenTypes.add(tokenType);
+	public boolean addTerminal(int id, String regularExpression, String name){
+		Terminal tokenType = new Terminal(id, Pattern.compile("^("+regularExpression+")"), name);
+		return terminals.add(tokenType);
 	}
 	
 	public void removeInitialSpace(){
@@ -82,8 +82,8 @@ public class LexicalAnalyzer {
 		}
 	}
 
-	public ArrayList<TokenType> getTokenTypes() {
-		return tokenTypes;
+	public ArrayList<Terminal> getTerminals() {
+		return terminals;
 	}
 
 	public int getRow() {

@@ -3,26 +3,26 @@ package edu.br.ufrpe.uag.compiler.model;
 
 public class Token {
 	
-	private final TokenType tokenType;
+	private final Terminal terminal;
 	private final int id;
 	private final String expression;
 	
 	/**
 	 * construtor do Token
-	 * @param tokenType
+	 * @param terminal
 	 * @param expression
 	 */
-	public Token(TokenType tokenType,
+	public Token(Terminal terminal,
 			String expression) {
 		
-		this.id = tokenType.generateId();
-		this.tokenType = tokenType;
+		this.id = terminal.generateId();
+		this.terminal = terminal;
 		this.expression = expression;
 		
 	}
 
-	public TokenType getTokenType() {
-		return tokenType;
+	public Terminal getTerminal() {
+		return terminal;
 	}
 
 	public int getId() {
@@ -35,7 +35,7 @@ public class Token {
 	
 	@Override
 	public String toString(){
-		return "<"+tokenType.getTypeName()+", "+id+" '"+expression+"'>";
+		return "<"+terminal.getTypeName()+", "+id+" '"+expression+"'>";
 	}
 	
 	
