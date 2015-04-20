@@ -9,6 +9,7 @@ public class SintaxAnalyzerTest {
 
 	@Test
 	public void test() {
+		//Terminais
 		Terminal executa = new Terminal (0, "executa", "EXECUTA");
 		Terminal abre_parenteses = new Terminal (1, "\\(", "abre_parenteses");
 		Terminal fecha_parenteses = new Terminal (2, "\\)", "fecha_parenteses");
@@ -49,7 +50,7 @@ public class SintaxAnalyzerTest {
 				+ "a <- 3;\n"
 				+ "retorne(a+b);\n"
 				+ "}");
-		
+		//Adicionando terminais ao analisador léxico
 		lexicalAnalyzer.addTerminal(executa);
 		lexicalAnalyzer.addTerminal(abre_parenteses);
 		lexicalAnalyzer.addTerminal(fecha_parenteses);
@@ -82,7 +83,7 @@ public class SintaxAnalyzerTest {
 		lexicalAnalyzer.addTerminal(VIRGULA);
 		lexicalAnalyzer.addTerminal(NUMEROS);
 		lexicalAnalyzer.addTerminal(ID);
-		
+		//Variaveis utilizadas na gramática
 		NonTerminal escopo = new NonTerminal("escopo");
 		NonTerminal separa_escopo = new NonTerminal("separa_escopo");
 		NonTerminal declara = new NonTerminal("declara");
@@ -106,7 +107,7 @@ public class SintaxAnalyzerTest {
 		NonTerminal outra_operacao = new NonTerminal("outra_operacao");
 		NonTerminal chamada_comparacao_operacao = new NonTerminal("chamada_comparacao_operacao");
 		NonTerminal separa = new NonTerminal("separa");
-		
+		//construção da gramática
 		escopo.addProduction(executa.and(abre_parenteses).and(assinatura).and(abre_chaves).and(escopo_funcao).and(fecha_chaves).and(separa_escopo));
 		escopo.addProduction(INTEIRO.and(ID).and(declara).and(separa_escopo));
 		escopo.addProduction(BOOLEANO.and(ID).and(declara).and(separa_escopo));
