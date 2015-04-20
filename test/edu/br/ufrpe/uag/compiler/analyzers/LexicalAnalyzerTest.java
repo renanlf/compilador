@@ -20,7 +20,7 @@ public class LexicalAnalyzerTest {
 	
 	@Test
 	public void testGetNextToken(){
-		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(new ArrayList<Terminal>(), "inteiro a <- 34;\nbooleano% b;\nexecuta(inteiroa, bollean b, inteiro a");
+		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer("inteiro a <- 34;\nbooleano b;\nexecuta(inteiroa, bollean b, inteiro a");
 		
 		lexicalAnalyzer.addTerminal(0, "executa", "EXECUTA");
 		lexicalAnalyzer.addTerminal(1, "\\(", "abre_parenteses");

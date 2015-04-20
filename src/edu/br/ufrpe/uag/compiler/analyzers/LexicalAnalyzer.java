@@ -1,6 +1,7 @@
 package edu.br.ufrpe.uag.compiler.analyzers;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ import edu.br.ufrpe.uag.compiler.model.Token;
 import edu.br.ufrpe.uag.compiler.model.Terminal;
 
 public class LexicalAnalyzer {
-	private final ArrayList<Terminal> terminals;
+	private final List<Terminal> terminals;
 	private final String[] sequence;
 	private int row;
 	private String sequenceRow;
@@ -19,7 +20,7 @@ public class LexicalAnalyzer {
 	 * @param arrayList array contendo os Terminals
 	 * @param string
 	 */
-	public LexicalAnalyzer(ArrayList<Terminal> terminals, String string) {
+	public LexicalAnalyzer(List<Terminal> terminals, String string) {
 		super();
 		this.terminals = terminals;
 		String[] newSequence = string.split("\n");
@@ -27,15 +28,29 @@ public class LexicalAnalyzer {
 		this.row = 0;
 		this.sequenceRow = new String(sequence[row]);
 	}
+	
 	/**
-	 * método que será utilizado pelo análisador sintático para obter os tokens
-	 * @return o próximo token. Caso não exista próximo será retornado null.
+	 * Construtor do analisador lexico.
+	 * @param arrayList array contendo os Terminals
+	 * @param string
+	 */
+	public LexicalAnalyzer(String string) {
+		super();
+		this.terminals = new ArrayList<Terminal>();
+		String[] newSequence = string.split("\n");
+		this.sequence = newSequence;
+		this.row = 0;
+		this.sequenceRow = new String(sequence[row]);
+	}
+	/**
+	 * mï¿½todo que serï¿½ utilizado pelo anï¿½lisador sintï¿½tico para obter os tokens
+	 * @return o prï¿½ximo token. Caso nï¿½o exista prï¿½ximo serï¿½ retornado null.
 	 */
 	public Token getNextToken(){
 		//se a linha selecionada possuir tamanho maior que 0.
 		if(sequenceRow.length() > 0){
 			removeInitialSpace();
-			//laço que varre os tokens até encontrar algum que satisfaça a condição interna.
+			//laï¿½o que varre os tokens atï¿½ encontrar algum que satisfaï¿½a a condiï¿½ï¿½o interna.
 			for(Terminal tokenType : terminals){
 				Matcher m = tokenType.getRegularExpression().matcher(sequenceRow);
 				if(m.find()){
@@ -48,23 +63,23 @@ public class LexicalAnalyzer {
 					return new Token(tokenType, expression);
 				}
 			}
-			//caso o inicio da linha selecionada não possua token correspondente será lançada uma exceção.
+			//caso o inicio da linha selecionada nï¿½o possua token correspondente serï¿½ lanï¿½ada uma exceï¿½ï¿½o.
 			throw new LexicalException(row, sequenceRow);
-		//caso a linha selecionada não possua tamanho maior que 0.
+		//caso a linha selecionada nï¿½o possua tamanho maior que 0.
 		//indica que chegou ao fim o parse na linha.
 		} else {
 			//incrementa o numero da linha.
 			row++;
 			//se o numero de linhas for maior que o array contendo o texto original quebrado em linhas retorne null.
 			if(row > sequence.length-1) return null;
-			//caso não a linha selecionada será a proxima linha da sequencia.
+			//caso nï¿½o a linha selecionada serï¿½ a proxima linha da sequencia.
 			sequenceRow = new String(sequence[row]);
-			//recursivamente chama getNextToken() que agora estará na nova linha.
+			//recursivamente chama getNextToken() que agora estarï¿½ na nova linha.
 			return getNextToken();
 		}
 	}
 	/**
-	 * método que adiciona um Terminal na lista do analisador léxico.
+	 * mï¿½todo que adiciona um Terminal na lista do analisador lï¿½xico.
 	 * @param id
 	 * @param regularExpression
 	 * @param name
@@ -76,13 +91,13 @@ public class LexicalAnalyzer {
 	}
 	
 	public void removeInitialSpace(){
-		//retira os espaços vazios que sobrem depois do texto retirado
+		//retira os espaï¿½os vazios que sobrem depois do texto retirado
 		while(sequenceRow.startsWith(" ")){
 			sequenceRow = sequenceRow.replaceFirst(" ", "");
 		}
 	}
 
-	public ArrayList<Terminal> getTerminals() {
+	public List<Terminal> getTerminals() {
 		return terminals;
 	}
 
