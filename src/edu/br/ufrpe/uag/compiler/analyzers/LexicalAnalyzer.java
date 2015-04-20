@@ -6,8 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.br.ufrpe.uag.compiler.exceptions.LexicalException;
-import edu.br.ufrpe.uag.compiler.model.Token;
-import edu.br.ufrpe.uag.compiler.model.Terminal;
+import edu.br.ufrpe.uag.compiler.model.lexical.Terminal;
+import edu.br.ufrpe.uag.compiler.model.lexical.Token;
 
 public class LexicalAnalyzer {
 	private final List<Terminal> terminals;
@@ -88,6 +88,10 @@ public class LexicalAnalyzer {
 	public boolean addTerminal(int id, String regularExpression, String name){
 		Terminal tokenType = new Terminal(id, Pattern.compile("^("+regularExpression+")"), name);
 		return terminals.add(tokenType);
+	}
+	
+	public boolean addTerminal(Terminal t){
+		return terminals.add(t);
 	}
 	
 	public void removeInitialSpace(){

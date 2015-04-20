@@ -1,4 +1,4 @@
-package edu.br.ufrpe.uag.compiler.model;
+package edu.br.ufrpe.uag.compiler.model.lexical;
 
 
 public class Token {
@@ -35,7 +35,7 @@ public class Token {
 	
 	@Override
 	public String toString(){
-		return "<"+terminal.getTypeName()+", "+id+" '"+expression+"'>";
+		return "<"+terminal.getName()+", "+id+" '"+expression+"'>";
 	}
 	
 	

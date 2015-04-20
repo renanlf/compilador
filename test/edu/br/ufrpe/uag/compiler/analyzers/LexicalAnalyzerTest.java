@@ -6,8 +6,8 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import edu.br.ufrpe.uag.compiler.model.Token;
-import edu.br.ufrpe.uag.compiler.model.Terminal;
+import edu.br.ufrpe.uag.compiler.model.lexical.Terminal;
+import edu.br.ufrpe.uag.compiler.model.lexical.Token;
 
 public class LexicalAnalyzerTest {
 
@@ -20,7 +20,13 @@ public class LexicalAnalyzerTest {
 	
 	@Test
 	public void testGetNextToken(){
-		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer("inteiro a <- 34;\nbooleano b;\nexecuta(inteiroa, bollean b, inteiro a");
+		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(
+				"inteiro a;\n"
+				+ "booleano b;\n"
+				+ "executa(inteiro a, bollean b, inteiro a){"
+				+ "a <- 3;\n"
+				+ "retorne(a+b);\n"
+				+ "}");
 		
 		lexicalAnalyzer.addTerminal(0, "executa", "EXECUTA");
 		lexicalAnalyzer.addTerminal(1, "\\(", "abre_parenteses");
