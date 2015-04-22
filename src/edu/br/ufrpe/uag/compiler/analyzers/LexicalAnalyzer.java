@@ -95,9 +95,16 @@ public class LexicalAnalyzer {
 	}
 	
 	public void removeInitialSpace(){
-		//retira os espa�os vazios que sobrem depois do texto retirado
-		while(sequenceRow.startsWith(" ")){
-			sequenceRow = sequenceRow.replaceFirst(" ", "");
+		//retira os espa�os vazios e tabulação que sobrem depois do texto retirado
+		while(sequenceRow.startsWith(" ") || sequenceRow.startsWith("\t")){
+			//se o inicio for um espaço
+			if(sequenceRow.startsWith(" ")){
+				//então o substitua por vazio
+				sequenceRow = sequenceRow.replaceFirst(" ", "");
+			} else {
+				//se não for espaço então será a tabulação, e a substitua
+				sequenceRow = sequenceRow.replaceFirst("\t", "");
+			}
 		}
 	}
 

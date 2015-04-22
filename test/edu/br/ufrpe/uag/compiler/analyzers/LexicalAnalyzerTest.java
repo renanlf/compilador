@@ -2,8 +2,6 @@ package edu.br.ufrpe.uag.compiler.analyzers;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-
 import org.junit.Test;
 
 import edu.br.ufrpe.uag.compiler.model.lexical.Terminal;
@@ -13,57 +11,88 @@ public class LexicalAnalyzerTest {
 
 	@Test
 	public void testAddTerminal() {
-		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(new ArrayList<Terminal>(), "");
+		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer("inteiro a;\n"
+				+ "booleano b;\n" + "executa(inteiro a, bollean b, inteiro a){"
+				+ " 	a <- 3;\n" + "retorne(a+b);\n" + "}");
 		boolean ret = lexicalAnalyzer.addTerminal(0, "renan", "nome");
 		assertEquals(true, ret);
 	}
-	
+
 	@Test
-	public void testGetNextToken(){
-		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(
-				"inteiro a;\n"
-				+ "booleano b;\n"
-				+ "executa(inteiro a, bollean b, inteiro a){"
-				+ "a <- 3;\n"
-				+ "retorne(a+b);\n"
-				+ "}");
-		
-		lexicalAnalyzer.addTerminal(0, "executa", "EXECUTA");
-		lexicalAnalyzer.addTerminal(1, "\\(", "abre_parenteses");
-		lexicalAnalyzer.addTerminal(2, "\\)", "fecha_parenteses");
-		lexicalAnalyzer.addTerminal(3, "\\{", "abre_chaves");
-		lexicalAnalyzer.addTerminal(4, "\\}", "fecha_chaves");
-		lexicalAnalyzer.addTerminal(5, "inteiro", "INTEIRO");
-		lexicalAnalyzer.addTerminal(6, "booleano", "BOOLEANO");
-		lexicalAnalyzer.addTerminal(7, "vazio", "VAZIO");
-		lexicalAnalyzer.addTerminal(8, "\\;", "PONTOVIRGULA");
-		lexicalAnalyzer.addTerminal(9, "<-", "ATRIBUIDOR");
-		lexicalAnalyzer.addTerminal(10, "retorne", "RETORNE");
-		lexicalAnalyzer.addTerminal(11, "enquanto", "ENQUANTO");
-		lexicalAnalyzer.addTerminal(12, "imprima", "IMPRIMA");
-		lexicalAnalyzer.addTerminal(13, "se", "SE");
-		lexicalAnalyzer.addTerminal(14, "senao", "SENAO");
-		lexicalAnalyzer.addTerminal(15, "V", "VERDADEIRO");
-		lexicalAnalyzer.addTerminal(16, "F", "FALSO");
-		lexicalAnalyzer.addTerminal(17, "pare", "PARE");
-		lexicalAnalyzer.addTerminal(18, "continue", "CONTINUE");
-		lexicalAnalyzer.addTerminal(19, "\\+", "MAIS");
-		lexicalAnalyzer.addTerminal(20, "\\-", "MENOS");
-		lexicalAnalyzer.addTerminal(21, "\\*", "VEZES");
-		lexicalAnalyzer.addTerminal(22, "\\/", "DIVIDIDO");
-		lexicalAnalyzer.addTerminal(23, "\\<", "MENORQ");
-		lexicalAnalyzer.addTerminal(24, "<=", "MENORQIGUAL");
-		lexicalAnalyzer.addTerminal(25, ">", "MAIORQ");
-		lexicalAnalyzer.addTerminal(26, ">=", "MAIORQIGUAL");
-		lexicalAnalyzer.addTerminal(27, "!=", "DIFERENTE");
-		lexicalAnalyzer.addTerminal(28, "=", "IGUAL");
-		lexicalAnalyzer.addTerminal(29, ",", "VIRGULA");
-		lexicalAnalyzer.addTerminal(30, "[0-9]+", "NUMEROS");
-		lexicalAnalyzer.addTerminal(31, "[a-z][a-zA-Z0-9]*", "ID");
-		
+	public void testGetNextToken() {
+		// Terminais
+		Terminal executa = new Terminal(0, "executa", "EXECUTA");
+		Terminal abre_parenteses = new Terminal(1, "\\(", "abre_parenteses");
+		Terminal fecha_parenteses = new Terminal(2, "\\)", "fecha_parenteses");
+		Terminal abre_chaves = new Terminal(3, "\\{", "abre_chaves");
+		Terminal fecha_chaves = new Terminal(4, "\\}", "fecha_chaves");
+		Terminal INTEIRO = new Terminal(5, "inteiro", "INTEIRO");
+		Terminal BOOLEANO = new Terminal(6, "booleano", "BOOLEANO");
+		Terminal VAZIO = new Terminal(7, "vazio", "VAZIO");
+		Terminal PONTOVIRGULA = new Terminal(8, "\\;", "PONTOVIRGULA");
+		Terminal ATRIBUIDOR = new Terminal(9, "<-", "ATRIBUIDOR");
+		Terminal RETORNE = new Terminal(10, "retorne", "RETORNE");
+		Terminal ENQUANTO = new Terminal(11, "enquanto", "ENQUANTO");
+		Terminal IMPRIMA = new Terminal(12, "imprima", "IMPRIMA");
+		Terminal SE = new Terminal(13, "se", "SE");
+		Terminal SENAO = new Terminal(14, "senao", "SENAO");
+		Terminal VERDADEIRO = new Terminal(15, "V", "VERDADEIRO");
+		Terminal FALSO = new Terminal(16, "F", "FALSO");
+		Terminal PARE = new Terminal(17, "pare", "PARE");
+		Terminal CONTINUE = new Terminal(18, "continue", "CONTINUE");
+		Terminal MAIS = new Terminal(19, "\\+", "MAIS");
+		Terminal MENOS = new Terminal(20, "\\-", "MENOS");
+		Terminal VEZES = new Terminal(21, "\\*", "VEZES");
+		Terminal DIVIDIDO = new Terminal(22, "\\/", "DIVIDIDO");
+		Terminal MENORQ = new Terminal(23, "\\<", "MENORQ");
+		Terminal MENORQIGUAL = new Terminal(24, "<=", "MENORQIGUAL");
+		Terminal MAIORQ = new Terminal(25, ">", "MAIORQ");
+		Terminal MAIORQIGUAL = new Terminal(26, ">=", "MAIORQIGUAL");
+		Terminal DIFERENTE = new Terminal(27, "!=", "DIFERENTE");
+		Terminal IGUAL = new Terminal(28, "=", "IGUAL");
+		Terminal VIRGULA = new Terminal(29, ",", "VIRGULA");
+		Terminal NUMEROS = new Terminal(30, "[0-9]+", "NUMEROS");
+		Terminal ID = new Terminal(31, "[a-z][a-zA-Z0-9]*", "ID");
+
+		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer("inteiro a;\n"
+				+ "booleano b;\n" + "executa(inteiro a, bollean b, inteiro a){"
+				+ " 	a <- 3;\n" + "retorne(a+b);\n" + "}");
+		// Adicionando terminais ao analisador léxico
+		lexicalAnalyzer.addTerminal(executa);
+		lexicalAnalyzer.addTerminal(abre_parenteses);
+		lexicalAnalyzer.addTerminal(fecha_parenteses);
+		lexicalAnalyzer.addTerminal(abre_chaves);
+		lexicalAnalyzer.addTerminal(fecha_chaves);
+		lexicalAnalyzer.addTerminal(INTEIRO);
+		lexicalAnalyzer.addTerminal(BOOLEANO);
+		lexicalAnalyzer.addTerminal(VAZIO);
+		lexicalAnalyzer.addTerminal(PONTOVIRGULA);
+		lexicalAnalyzer.addTerminal(ATRIBUIDOR);
+		lexicalAnalyzer.addTerminal(RETORNE);
+		lexicalAnalyzer.addTerminal(ENQUANTO);
+		lexicalAnalyzer.addTerminal(IMPRIMA);
+		lexicalAnalyzer.addTerminal(SE);
+		lexicalAnalyzer.addTerminal(SENAO);
+		lexicalAnalyzer.addTerminal(VERDADEIRO);
+		lexicalAnalyzer.addTerminal(FALSO);
+		lexicalAnalyzer.addTerminal(PARE);
+		lexicalAnalyzer.addTerminal(CONTINUE);
+		lexicalAnalyzer.addTerminal(MAIS);
+		lexicalAnalyzer.addTerminal(MENOS);
+		lexicalAnalyzer.addTerminal(VEZES);
+		lexicalAnalyzer.addTerminal(DIVIDIDO);
+		lexicalAnalyzer.addTerminal(MENORQ);
+		lexicalAnalyzer.addTerminal(MENORQIGUAL);
+		lexicalAnalyzer.addTerminal(MAIORQ);
+		lexicalAnalyzer.addTerminal(MAIORQIGUAL);
+		lexicalAnalyzer.addTerminal(DIFERENTE);
+		lexicalAnalyzer.addTerminal(IGUAL);
+		lexicalAnalyzer.addTerminal(VIRGULA);
+		lexicalAnalyzer.addTerminal(NUMEROS);
+		lexicalAnalyzer.addTerminal(ID);
 		Token token = lexicalAnalyzer.getNextToken();
 		String print = "";
-		while(token != null){
+		while (token != null) {
 			print = print + token;
 			token = lexicalAnalyzer.getNextToken();
 		}

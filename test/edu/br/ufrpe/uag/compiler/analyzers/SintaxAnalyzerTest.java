@@ -47,7 +47,7 @@ public class SintaxAnalyzerTest {
 				"inteiro a;\n"
 				+ "booleano b;\n"
 				+ "executa(inteiro a, bollean b, inteiro a){"
-				+ "a <- 3;\n"
+				+ " 	a <- 3;\n"
 				+ "retorne(a+b);\n"
 				+ "}");
 		//Adicionando terminais ao analisador léxico
