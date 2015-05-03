@@ -3,6 +3,7 @@ package edu.br.ufrpe.uag.compiler.model.sintax;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.br.ufrpe.uag.compiler.exceptions.TerminalNotFoundException;
 import edu.br.ufrpe.uag.compiler.model.AntTerminal;
 import edu.br.ufrpe.uag.compiler.model.lexical.Terminal;
 
@@ -32,6 +33,16 @@ public class NonTerminal implements AntTerminal{
 		p.getAntTerminals().add(a);
 		return p;
 	}
+	
+	public Production getProduction(Terminal t) throws TerminalNotFoundException{
+		for(Production p : productions){
+			Terminal first = (Terminal) p.getAntTerminals().get(0);
+			if(t.equals(first)){
+				return p;
+			}
+		}
+		return null;
+	}
 
 	public void addProduction(Production p) {
 		productions.add(p);		
@@ -58,6 +69,15 @@ public class NonTerminal implements AntTerminal{
 
 	public String getName() {
 		return name;
+	}
+
+	public boolean haveBlank() {
+		for(Production p : productions){
+			if(p.getAntTerminals().get(0).equals(Terminal.BLANK)){
+				return true;
+			}
+		}
+		return false;
 	}
 
 

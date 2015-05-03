@@ -2,6 +2,9 @@ package edu.br.ufrpe.uag.compiler.analyzers;
 
 import org.junit.Test;
 
+import edu.br.ufrpe.uag.compiler.exceptions.NonTerminalEmpty;
+import edu.br.ufrpe.uag.compiler.exceptions.SintaxException;
+import edu.br.ufrpe.uag.compiler.exceptions.TerminalNotFoundException;
 import edu.br.ufrpe.uag.compiler.model.lexical.Terminal;
 import edu.br.ufrpe.uag.compiler.model.sintax.NonTerminal;
 
@@ -23,8 +26,8 @@ public class SintaxAnalyzerTest {
 		Terminal RETORNE = new Terminal (10, "retorne", "RETORNE");
 		Terminal ENQUANTO = new Terminal (11, "enquanto", "ENQUANTO");
 		Terminal IMPRIMA = new Terminal (12, "imprima", "IMPRIMA");
-		Terminal SE = new Terminal (13, "se", "SE");
-		Terminal SENAO = new Terminal (14, "senao", "SENAO");
+		Terminal SENAO = new Terminal (13, "snao", "SENAO");
+		Terminal SE = new Terminal (14, "se", "SE");
 		Terminal VERDADEIRO = new Terminal (15, "V", "VERDADEIRO");
 		Terminal FALSO = new Terminal (16, "F", "FALSO");
 		Terminal PARE = new Terminal (17, "pare", "PARE");
@@ -46,9 +49,17 @@ public class SintaxAnalyzerTest {
 		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(
 				"inteiro a;\n"
 				+ "booleano b;\n"
-				+ "executa(inteiro a, bollean b, inteiro a){"
+				+ "executa(inteiro a){"
 				+ " 	a <- 3;\n"
-				+ "retorne(a+b);\n"
+				+ "		enquanto(a < 10){\n"
+				+ "			a <- a + 1;\n"
+				+ "		}\n"
+				+ "		se(a = 10){\n"
+				+ "			a <- a/2;\n"
+				+ "		}snao{\n"
+				+ "			a <- a * 2 + 5;\n"
+				+ "		}\n"
+				+ "retorne(a);\n"
 				+ "}");
 		//Adicionando terminais ao analisador léxico
 		lexicalAnalyzer.addTerminal(executa);
@@ -83,6 +94,8 @@ public class SintaxAnalyzerTest {
 		lexicalAnalyzer.addTerminal(VIRGULA);
 		lexicalAnalyzer.addTerminal(NUMEROS);
 		lexicalAnalyzer.addTerminal(ID);
+		
+		SintaxAnalyzer sintaxAnalyzer = new SintaxAnalyzer(lexicalAnalyzer);
 		//Variaveis utilizadas na gramática
 		NonTerminal escopo = new NonTerminal("escopo");
 		NonTerminal separa_escopo = new NonTerminal("separa_escopo");
@@ -107,6 +120,9 @@ public class SintaxAnalyzerTest {
 		NonTerminal outra_operacao = new NonTerminal("outra_operacao");
 		NonTerminal chamada_comparacao_operacao = new NonTerminal("chamada_comparacao_operacao");
 		NonTerminal separa = new NonTerminal("separa");
+		NonTerminal ID_chamada_NUMERO_BOOL = new NonTerminal("ID_chamada_NUMERO_BOOL");
+		NonTerminal comparador = new NonTerminal("comparador");
+		NonTerminal operador = new NonTerminal("operador");
 		//construção da gramática
 		escopo.addProduction(executa.and(abre_parenteses).and(assinatura).and(abre_chaves).and(escopo_funcao).and(fecha_chaves).and(separa_escopo));
 		escopo.addProduction(INTEIRO.and(ID).and(declara).and(separa_escopo));
@@ -127,8 +143,182 @@ public class SintaxAnalyzerTest {
 		
 		separa_parametros.addProduction(VIRGULA.and(parametros));
 		separa_parametros.addProduction(Terminal.BLANK);
-		System.out.println(escopo);
-		System.out.println(separa_escopo);
+		
+		escopo_funcao.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_funcao));
+		escopo_funcao.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_funcao));
+		escopo_funcao.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_funcao));
+		escopo_funcao.addProduction(RETORNE.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao));
+		escopo_funcao.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_loop).and(fecha_chaves).and(separa_escopo_funcao));
+		escopo_funcao.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao));
+		escopo_funcao.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_funcao));
+		escopo_funcao.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_funcao));
+		
+		separa_escopo_funcao.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_funcao));
+		separa_escopo_funcao.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_funcao));
+		separa_escopo_funcao.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_funcao));
+		separa_escopo_funcao.addProduction(RETORNE.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao));
+		separa_escopo_funcao.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_loop).and(fecha_chaves).and(separa_escopo_funcao));
+		separa_escopo_funcao.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao));
+		separa_escopo_funcao.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_funcao));
+		separa_escopo_funcao.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_funcao));
+		separa_escopo_funcao.addProduction(Terminal.BLANK);
+		
+		ID_chamada_NUMERO.addProduction(ID.and(ID_chamada));
+		ID_chamada_NUMERO.addProduction(NUMEROS);
+		
+		ID_chamada.addProduction(abre_parenteses.and(assinatura_argumentos));
+		ID_chamada.addProduction(Terminal.BLANK);
+		
+		assinatura.addProduction(fecha_parenteses);
+		assinatura.addProduction(INTEIRO.and(ID).and(separa_parametros).and(fecha_parenteses));
+		assinatura.addProduction(BOOLEANO.and(ID).and(separa_parametros).and(fecha_parenteses));
+		
+		diversas_atribuicoes.addProduction(ID.and(chamada_comparacao_operacao));
+		diversas_atribuicoes.addProduction(NUMEROS.and(separa));
+		diversas_atribuicoes.addProduction(BOOLEANO);
+		
+		comparacao.addProduction(NUMEROS.and(comparador).and(ID_chamada_NUMERO));
+		comparacao.addProduction(BOOLEANO);
+		comparacao.addProduction(ID.and(ID_chamada).and(comparador).and(ID_chamada_NUMERO));
+		
+		assinatura_argumentos.addProduction(fecha_parenteses);
+		assinatura_argumentos.addProduction(NUMEROS.and(separa_argumentos).and(fecha_parenteses));
+		assinatura_argumentos.addProduction(BOOLEANO.and(separa_argumentos).and(fecha_parenteses));
+		assinatura_argumentos.addProduction(ID.and(ID_chamada).and(separa_argumentos).and(fecha_parenteses));
+		
+		argumentos.addProduction(NUMEROS.and(separa_argumentos));
+		argumentos.addProduction(BOOLEANO.and(separa_argumentos));
+		argumentos.addProduction(ID.and(ID_chamada).and(separa_argumentos));
+		
+		separa_argumentos.addProduction(VIRGULA.and(argumentos));
+		separa_argumentos.addProduction(Terminal.BLANK);
+		
+		escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_loop));
+		escopo_loop.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_loop));
+		escopo_loop.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_loop));
+		escopo_loop.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_loop).and(fecha_chaves).and(separa_escopo_loop));
+		escopo_loop.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_loop));
+		escopo_loop.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_loop));
+		escopo_loop.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_loop));
+		escopo_loop.addProduction(PARE.and(PONTOVIRGULA).and(separa_escopo_loop));
+		escopo_loop.addProduction(CONTINUE.and(PONTOVIRGULA).and(separa_escopo_loop));
+		
+		separa_escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_loop));
+		separa_escopo_loop.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_loop));
+		separa_escopo_loop.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_loop));
+		separa_escopo_loop.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_loop).and(fecha_chaves).and(separa_escopo_loop));
+		separa_escopo_loop.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_loop));
+		separa_escopo_loop.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_loop));
+		separa_escopo_loop.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_loop));
+		separa_escopo_loop.addProduction(PARE.and(PONTOVIRGULA).and(separa_escopo_loop));
+		separa_escopo_loop.addProduction(CONTINUE.and(PONTOVIRGULA).and(separa_escopo_loop));
+		separa_escopo_loop.addProduction(Terminal.BLANK);
+		
+		escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional));
+		escopo_condicional.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional));
+		escopo_condicional.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_condicional));
+		escopo_condicional.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional));
+		escopo_condicional.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_condicional));
+		escopo_condicional.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional));
+		escopo_condicional.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional));
+		
+		separa_escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional));
+		separa_escopo_condicional.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional));
+		separa_escopo_condicional.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_condicional));
+		separa_escopo_condicional.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional));
+		separa_escopo_condicional.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_condicional));
+		separa_escopo_condicional.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional));
+		separa_escopo_condicional.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional));
+		separa_escopo_condicional.addProduction(Terminal.BLANK);
+		
+		operacao.addProduction(ID.and(ID_chamada).and(operador).and(ID_chamada_NUMERO).and(outra_operacao));
+		operacao.addProduction(NUMEROS.and(operador).and(ID_chamada_NUMERO).and(outra_operacao));
+		
+		outra_operacao.addProduction(MAIS.and(ID_chamada_NUMERO).and(outra_operacao));
+		outra_operacao.addProduction(MENOS.and(ID_chamada_NUMERO).and(outra_operacao));		
+		outra_operacao.addProduction(VEZES.and(ID_chamada_NUMERO).and(outra_operacao));
+		outra_operacao.addProduction(DIVIDIDO.and(ID_chamada_NUMERO).and(outra_operacao));
+		outra_operacao.addProduction(Terminal.BLANK);
+		
+		chamada_comparacao_operacao.addProduction(abre_parenteses.and(assinatura_argumentos).and(separa));
+		chamada_comparacao_operacao.addProduction(Terminal.BLANK);
+		chamada_comparacao_operacao.addProduction(MAIS.and(ID_chamada_NUMERO).and(outra_operacao));
+		chamada_comparacao_operacao.addProduction(MENOS.and(ID_chamada_NUMERO).and(outra_operacao));
+		chamada_comparacao_operacao.addProduction(VEZES.and(ID_chamada_NUMERO).and(outra_operacao));
+		chamada_comparacao_operacao.addProduction(DIVIDIDO.and(ID_chamada_NUMERO).and(outra_operacao));
+		chamada_comparacao_operacao.addProduction(MENORQ.and(ID_chamada_NUMERO));
+		chamada_comparacao_operacao.addProduction(MAIORQ.and(ID_chamada_NUMERO));
+		chamada_comparacao_operacao.addProduction(MENORQIGUAL.and(ID_chamada_NUMERO));
+		chamada_comparacao_operacao.addProduction(MAIORQIGUAL.and(ID_chamada_NUMERO));
+		chamada_comparacao_operacao.addProduction(IGUAL.and(ID_chamada_NUMERO));
+		chamada_comparacao_operacao.addProduction(DIFERENTE.and(ID_chamada_NUMERO));
+		
+		separa.addProduction(MAIS.and(ID_chamada_NUMERO).and(outra_operacao));
+		separa.addProduction(MENOS.and(ID_chamada_NUMERO).and(outra_operacao));
+		separa.addProduction(VEZES.and(ID_chamada_NUMERO).and(outra_operacao));
+		separa.addProduction(DIVIDIDO.and(ID_chamada_NUMERO).and(outra_operacao));
+		separa.addProduction(MENORQ.and(ID_chamada_NUMERO));
+		separa.addProduction(MAIORQ.and(ID_chamada_NUMERO));
+		separa.addProduction(MENORQIGUAL.and(ID_chamada_NUMERO));
+		separa.addProduction(MAIORQIGUAL.and(ID_chamada_NUMERO));
+		separa.addProduction(IGUAL.and(ID_chamada_NUMERO));
+		separa.addProduction(DIFERENTE.and(ID_chamada_NUMERO));
+		separa.addProduction(Terminal.BLANK);
+		
+		ID_chamada_NUMERO_BOOL.addProduction(ID.and(ID_chamada));
+		ID_chamada_NUMERO_BOOL.addProduction(NUMEROS);
+		ID_chamada_NUMERO_BOOL.addProduction(BOOLEANO);
+		
+		comparador.addProduction(MENORQ);
+		comparador.addProduction(MAIORQ);
+		comparador.addProduction(MENORQIGUAL);
+		comparador.addProduction(MAIORQIGUAL);
+		comparador.addProduction(IGUAL);
+		comparador.addProduction(DIFERENTE);
+		
+		operador.addProduction(MAIS);
+		operador.addProduction(MENOS);
+		operador.addProduction(VEZES);
+		operador.addProduction(DIVIDIDO);
+		
+		
+		//Adicionando NonTerminal ao analisador sintático
+		sintaxAnalyzer.addNonTerminal(escopo);
+		sintaxAnalyzer.addNonTerminal(separa_escopo);
+		sintaxAnalyzer.addNonTerminal(declara);
+		sintaxAnalyzer.addNonTerminal(parametros);
+		sintaxAnalyzer.addNonTerminal(separa_parametros);
+		sintaxAnalyzer.addNonTerminal(escopo_funcao);
+		sintaxAnalyzer.addNonTerminal(separa_escopo_funcao);
+		sintaxAnalyzer.addNonTerminal(ID_chamada_NUMERO);
+		sintaxAnalyzer.addNonTerminal(ID_chamada);
+		sintaxAnalyzer.addNonTerminal(assinatura);
+		sintaxAnalyzer.addNonTerminal(diversas_atribuicoes);
+		sintaxAnalyzer.addNonTerminal(comparacao);
+		sintaxAnalyzer.addNonTerminal(assinatura_argumentos);
+		sintaxAnalyzer.addNonTerminal(argumentos);
+		sintaxAnalyzer.addNonTerminal(separa_argumentos);
+		sintaxAnalyzer.addNonTerminal(escopo_loop);
+		sintaxAnalyzer.addNonTerminal(separa_escopo_loop);
+		sintaxAnalyzer.addNonTerminal(escopo_condicional);
+		sintaxAnalyzer.addNonTerminal(separa_escopo_condicional);
+		sintaxAnalyzer.addNonTerminal(operacao);
+		sintaxAnalyzer.addNonTerminal(outra_operacao);
+		sintaxAnalyzer.addNonTerminal(chamada_comparacao_operacao);
+		sintaxAnalyzer.addNonTerminal(separa);
+		sintaxAnalyzer.addNonTerminal(ID_chamada_NUMERO_BOOL);
+		sintaxAnalyzer.addNonTerminal(comparador);
+		sintaxAnalyzer.addNonTerminal(operador);
+		
+		try {
+			sintaxAnalyzer.parse();
+		} catch (SintaxException e) {
+			System.out.println(e.getMessage());
+		} catch (TerminalNotFoundException e) {
+			System.out.println(e.getOutput());
+		} catch (NonTerminalEmpty e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 }
