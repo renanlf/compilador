@@ -53,7 +53,7 @@ public class SintaxAnalyzer {
 						continue;
 					} else {
 						throw new TerminalNotFoundException(n,
-								lexicalAnalyzer.getRow());
+								lexicalAnalyzer.getRow(), token);
 					}
 				}
 				stack.pop();

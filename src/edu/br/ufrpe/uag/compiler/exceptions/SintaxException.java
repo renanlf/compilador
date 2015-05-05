@@ -10,6 +10,6 @@ public class SintaxException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	public SintaxException(Terminal t, int i, Token token){
-		super("Expected Terminal "+t.getName()+" in row "+(i+1)+" but have "+token.getExpression());
+		super("Era experado um token do tipo "+t.getName()+" na linha "+(i+1)+" mas foi encontrado \""+token.getExpression()+"\"");
 	}
 }

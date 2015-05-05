@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import edu.br.ufrpe.uag.compiler.exceptions.LexicalException;
 import edu.br.ufrpe.uag.compiler.model.lexical.Terminal;
 import edu.br.ufrpe.uag.compiler.model.lexical.Token;
 
@@ -54,9 +55,13 @@ public class LexicalAnalyzerTest {
 		Terminal NUMEROS = new Terminal(30, "[0-9]+", "NUMEROS");
 		Terminal ID = new Terminal(31, "[a-z][a-zA-Z0-9]*", "ID");
 
-		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer("inteiro a;\n"
-				+ "booleano b;\n" + "executa(inteiro a, bollean b, inteiro a){"
-				+ " 	a <- 3;\n" + "retorne(a+b);\n" + "}");
+		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(
+				"inteiro a;\n"
+				+ "booleano b;\n" 
+				+ "executa(inteiro a, bollean b, inteiro a){\n"
+				+ " 	a <- 357;\n" 
+				+ "retorne(a+b);\n" 
+				+ "}");
 		// Adicionando terminais ao analisador léxico
 		lexicalAnalyzer.addTerminal(executa);
 		lexicalAnalyzer.addTerminal(abre_parenteses);
@@ -90,13 +95,17 @@ public class LexicalAnalyzerTest {
 		lexicalAnalyzer.addTerminal(VIRGULA);
 		lexicalAnalyzer.addTerminal(NUMEROS);
 		lexicalAnalyzer.addTerminal(ID);
-		Token token = lexicalAnalyzer.getNextToken();
-		String print = "";
-		while (token != null) {
-			print = print + token;
-			token = lexicalAnalyzer.getNextToken();
+		try {
+			Token token = lexicalAnalyzer.getNextToken();
+			String print = "";
+			while (token != null) {
+				print = print + token;
+				token = lexicalAnalyzer.getNextToken();
+			}
+			System.out.println(print);
+		} catch (LexicalException ex) {
+			System.out.println(ex.getMessage());
 		}
-		System.out.println(print);
 	}
 
 }

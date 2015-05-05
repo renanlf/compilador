@@ -43,14 +43,14 @@ public class LexicalAnalyzer {
 		this.sequenceRow = new String(sequence[row]);
 	}
 	/**
-	 * m�todo que ser� utilizado pelo an�lisador sint�tico para obter os tokens
-	 * @return o pr�ximo token. Caso n�o exista pr�ximo ser� retornado null.
+	 * método que será utilizado pelo analisador sintático para obter os tokens
+	 * @return o próximo token. Caso não exista próximo será retornado null.
 	 */
 	public Token getNextToken(){
 		//se a linha selecionada possuir tamanho maior que 0.
 		if(sequenceRow.length() > 0){
 			removeInitialSpace();
-			//la�o que varre os tokens at� encontrar algum que satisfa�a a condi��o interna.
+			//laço que varre os tokens até encontrar algum que satisfaça a condição interna.
 			for(Terminal tokenType : terminals){
 				Matcher m = tokenType.getRegularExpression().matcher(sequenceRow);
 				if(m.find()){
@@ -63,7 +63,7 @@ public class LexicalAnalyzer {
 					return new Token(tokenType, expression);
 				}
 			}
-			//caso o inicio da linha selecionada n�o possua token correspondente ser� lan�ada uma exce��o.
+			//caso o inicio da linha selecionada n�o possua token correspondente será lan�ada uma exce��o.
 			throw new LexicalException(row, sequenceRow);
 		//caso a linha selecionada n�o possua tamanho maior que 0.
 		//indica que chegou ao fim o parse na linha.
