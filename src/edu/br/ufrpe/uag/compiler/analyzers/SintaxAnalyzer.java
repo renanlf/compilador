@@ -16,11 +16,13 @@ import edu.br.ufrpe.uag.compiler.model.sintax.SintaxStack;
 public class SintaxAnalyzer {
 	private final List<NonTerminal> nonTerminals;
 	private final LexicalAnalyzer lexicalAnalyzer;
+	private final List<Token> symbolTable;
 
 	public SintaxAnalyzer(LexicalAnalyzer lexicalAnalyzer) {
 		super();
 		this.lexicalAnalyzer = lexicalAnalyzer;
 		this.nonTerminals = new ArrayList<NonTerminal>();
+		this.symbolTable = new ArrayList<Token>();
 	}
 
 	public void parse() throws SintaxException, TerminalNotFoundException, NonTerminalEmpty {
@@ -34,6 +36,7 @@ public class SintaxAnalyzer {
 				Terminal t2 = (Terminal) a;
 				if (token.equals(t2)) {
 					stack.pop();
+					symbolTable.add(token);
 					token = lexicalAnalyzer.getNextToken();
 				} else {
 					throw new SintaxException(t2, lexicalAnalyzer.getRow(), token);
