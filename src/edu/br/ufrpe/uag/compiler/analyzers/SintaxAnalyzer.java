@@ -28,11 +28,11 @@ public class SintaxAnalyzer {
 		SintaxStack stack = new SintaxStack();
 		stack.add(nonTerminals.get(0));
 		while (token != null) {
-			Terminal t = token.getTerminal();
+//			Terminal t = token.getTerminal();
 			AntTerminal a = stack.getLast();
 			if (a instanceof Terminal) {
 				Terminal t2 = (Terminal) a;
-				if (t.equals(t2)) {
+				if (token.equals(t2)) {
 					stack.pop();
 					token = lexicalAnalyzer.getNextToken();
 				} else {
@@ -44,7 +44,7 @@ public class SintaxAnalyzer {
 				if(n.getProductions().size() == 0){
 					throw new NonTerminalEmpty(n);
 				}
-				p = n.getProduction(t);
+				p = n.getProduction(token);
 				
 				if (p == null) {
 					if (n.haveBlank()) {

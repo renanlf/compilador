@@ -50,7 +50,7 @@ public class SintaxAnalyzerTest {
 		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(
 				"inteiro a;\n"
 				+ "booleano b;\n"
-				+ "executa(inteiro a){"
+				+ "executa(inteiro a){\n"
 				+ " 	a <- 3;\n"
 				+ "		enquanto(a < 10){\n"
 				+ "			a <- a + 1;\n"
@@ -60,7 +60,7 @@ public class SintaxAnalyzerTest {
 				+ "		}snao{\n"
 				+ "			a <- a * 2 + 5;\n"
 				+ "		}\n"
-				+ "retorne(a);\n"
+				+ "retorne(a+);\n"
 				+ "}");
 		//Adicionando terminais ao analisador léxico
 		lexicalAnalyzer.addTerminal(executa);

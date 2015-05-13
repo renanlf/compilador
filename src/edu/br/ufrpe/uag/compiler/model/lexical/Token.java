@@ -1,12 +1,12 @@
 package edu.br.ufrpe.uag.compiler.model.lexical;
 
 
-public class Token {
+public class Token extends Terminal {
 	
-	private final Terminal terminal;
+//	private final Terminal terminal;
 	private final int id;
 	private final String expression;
-	
+
 	/**
 	 * construtor do Token
 	 * @param terminal
@@ -14,16 +14,16 @@ public class Token {
 	 */
 	public Token(Terminal terminal,
 			String expression) {
-		
-		this.id = terminal.generateId();
-		this.terminal = terminal;
+		super(terminal.getId(), terminal.getRegularExpression(), terminal.getName());
+		this.id = this.generateId();
+//		this.terminal = terminal;
 		this.expression = expression;
 		
 	}
 
-	public Terminal getTerminal() {
-		return terminal;
-	}
+//	public Terminal getTerminal() {
+//		return terminal;
+//	}
 
 	public int getId() {
 		return id;
@@ -35,7 +35,17 @@ public class Token {
 	
 	@Override
 	public String toString(){
-		return "<"+terminal.getName()+", "+id+" '"+expression+"'>";
+		return "<"+this.getName()+", "+id+" '"+expression+"'>";
+	}
+	
+	public boolean equals(Object o){
+		if (o instanceof Terminal){
+			Terminal terminalThis = (Terminal) this;
+			return o.equals(terminalThis);
+		} else {
+			Token tokenO = (Token) o;
+			return this.getExpression().equals(tokenO.getExpression());
+		}
 	}
 	
 	

@@ -7,13 +7,15 @@ import edu.br.ufrpe.uag.compiler.model.sintax.Production;
 
 public class Terminal implements AntTerminal {
 	public static final Terminal BLANK = new Terminal(-1, "", "BLANK");
-	
+
 	private final Pattern regularExpression;
 	private final String name;
 	private int typeId;
 	private final int id;
+
 	/**
 	 * Construtor do Terminal
+	 * 
 	 * @param id
 	 * @param regularExpression
 	 * @param name
@@ -25,15 +27,16 @@ public class Terminal implements AntTerminal {
 		this.regularExpression = regularExpression;
 		this.typeId = 1;
 	}
-	
-	public Terminal(int id, String regularExpression, String name){
+
+	public Terminal(int id, String regularExpression, String name) {
 		this.id = id;
 		this.name = name;
-		this.regularExpression = Pattern.compile("^("+regularExpression+")");
+		this.regularExpression = Pattern
+				.compile("^(" + regularExpression + ")");
 		this.typeId = 1;
 	}
-	
-	public int generateId(){
+
+	public int generateId() {
 		int result = typeId;
 		typeId++;
 		return result;
@@ -58,10 +61,14 @@ public class Terminal implements AntTerminal {
 		p.getAntTerminals().add(a);
 		return p;
 	}
-	
-	public String toString(){
-		return "<"+name+">";
+
+	public String toString() {
+		return "<" + name + ">";
 	}
-	
-	
+
+	public boolean equals(Object o) {
+		Terminal terminalO = (Terminal) o;
+		return this.getName().equals(terminalO.getName());
+	}
+
 }
