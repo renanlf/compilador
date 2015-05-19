@@ -2,8 +2,8 @@ package edu.br.ufrpe.uag.compiler.exceptions;
 
 import edu.br.ufrpe.uag.compiler.model.lexical.Terminal;
 import edu.br.ufrpe.uag.compiler.model.lexical.Token;
-import edu.br.ufrpe.uag.compiler.model.sintax.NonTerminal;
-import edu.br.ufrpe.uag.compiler.model.sintax.Production;
+import edu.br.ufrpe.uag.compiler.model.syntax.NonTerminal;
+import edu.br.ufrpe.uag.compiler.model.syntax.Production;
 
 public class TerminalNotFoundException extends Exception {
 

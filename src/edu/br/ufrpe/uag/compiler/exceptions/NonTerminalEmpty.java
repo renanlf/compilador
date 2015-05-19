@@ -1,6 +1,6 @@
 package edu.br.ufrpe.uag.compiler.exceptions;
 
-import edu.br.ufrpe.uag.compiler.model.sintax.NonTerminal;
+import edu.br.ufrpe.uag.compiler.model.syntax.NonTerminal;
 
 public class NonTerminalEmpty extends Exception {
 	/**

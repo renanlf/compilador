@@ -1,4 +1,4 @@
-package edu.br.ufrpe.uag.compiler.model.sintax;
+package edu.br.ufrpe.uag.compiler.model.syntax;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import edu.br.ufrpe.uag.compiler.exceptions.TerminalNotFoundException;
 import edu.br.ufrpe.uag.compiler.model.AntTerminal;
 import edu.br.ufrpe.uag.compiler.model.lexical.Terminal;
+import edu.br.ufrpe.uag.compiler.model.semantic.SemanticAction;
 
 public class NonTerminal implements AntTerminal{
 	private final String name;
@@ -44,8 +45,13 @@ public class NonTerminal implements AntTerminal{
 		return null;
 	}
 
+	public void addProduction(Production p, SemanticAction semanticAction) {
+		p.setSemanticAction(semanticAction);
+		productions.add(p);
+	}
+	
 	public void addProduction(Production p) {
-		productions.add(p);		
+		productions.add(p);
 	}
 	
 	public void addProduction(Terminal t) {

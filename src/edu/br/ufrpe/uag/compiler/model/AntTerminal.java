@@ -1,6 +1,6 @@
 package edu.br.ufrpe.uag.compiler.model;
 
-import edu.br.ufrpe.uag.compiler.model.sintax.Production;
+import edu.br.ufrpe.uag.compiler.model.syntax.Production;
 /**
  * Interface implementada por Terminais e Não Terminais.
  * @author renan

@@ -1,14 +1,14 @@
-package edu.br.ufrpe.uag.compiler.model.sintax;
+package edu.br.ufrpe.uag.compiler.model.syntax;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 import edu.br.ufrpe.uag.compiler.model.AntTerminal;
 
-public class SintaxStack {
+public class SyntaxStack {
 	private final Deque<AntTerminal> stack;
 
-	public SintaxStack() {
+	public SyntaxStack() {
 		super();
 		this.stack = new ArrayDeque<AntTerminal>();
 	}

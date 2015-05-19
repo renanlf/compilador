@@ -4,12 +4,20 @@ import org.junit.Test;
 
 import edu.br.ufrpe.uag.compiler.exceptions.LexicalException;
 import edu.br.ufrpe.uag.compiler.exceptions.NonTerminalEmpty;
-import edu.br.ufrpe.uag.compiler.exceptions.SintaxException;
+import edu.br.ufrpe.uag.compiler.exceptions.SyntaxException;
 import edu.br.ufrpe.uag.compiler.exceptions.TerminalNotFoundException;
 import edu.br.ufrpe.uag.compiler.model.lexical.Terminal;
-import edu.br.ufrpe.uag.compiler.model.sintax.NonTerminal;
+import edu.br.ufrpe.uag.compiler.model.lexical.Token;
+import edu.br.ufrpe.uag.compiler.model.semantic.Definicao;
+import edu.br.ufrpe.uag.compiler.model.semantic.Executa;
+import edu.br.ufrpe.uag.compiler.model.semantic.SemanticAction;
+import edu.br.ufrpe.uag.compiler.model.semantic.Tipo;
+import edu.br.ufrpe.uag.compiler.model.syntax.NonLeaf;
+import edu.br.ufrpe.uag.compiler.model.syntax.NonTerminal;
+import edu.br.ufrpe.uag.compiler.model.syntax.Production;
+import edu.br.ufrpe.uag.compiler.model.syntax.SyntaxNode;
 
-public class SintaxAnalyzerTest {
+public class SemanticAnalyzerTest {
 
 	@Test
 	public void test() {
@@ -60,7 +68,7 @@ public class SintaxAnalyzerTest {
 				+ "		}snao{\n"
 				+ "			a <- a * 2 + 5;\n"
 				+ "		}\n"
-				+ "retorne(a+);\n"
+				+ "retorne(a);\n"
 				+ "}");
 		//Adicionando terminais ao analisador léxico
 		lexicalAnalyzer.addTerminal(executa);
@@ -96,7 +104,8 @@ public class SintaxAnalyzerTest {
 		lexicalAnalyzer.addTerminal(NUMEROS);
 		lexicalAnalyzer.addTerminal(ID);
 		
-		SintaxAnalyzer sintaxAnalyzer = new SintaxAnalyzer(lexicalAnalyzer);
+		SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lexicalAnalyzer);
+		SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
 		//Variaveis utilizadas na gramática
 		NonTerminal escopo = new NonTerminal("escopo");
 		NonTerminal separa_escopo = new NonTerminal("separa_escopo");
@@ -284,36 +293,38 @@ public class SintaxAnalyzerTest {
 		
 		
 		//Adicionando NonTerminal ao analisador sintático
-		sintaxAnalyzer.addNonTerminal(escopo);
-		sintaxAnalyzer.addNonTerminal(separa_escopo);
-		sintaxAnalyzer.addNonTerminal(declara);
-		sintaxAnalyzer.addNonTerminal(parametros);
-		sintaxAnalyzer.addNonTerminal(separa_parametros);
-		sintaxAnalyzer.addNonTerminal(escopo_funcao);
-		sintaxAnalyzer.addNonTerminal(separa_escopo_funcao);
-		sintaxAnalyzer.addNonTerminal(ID_chamada_NUMERO);
-		sintaxAnalyzer.addNonTerminal(ID_chamada);
-		sintaxAnalyzer.addNonTerminal(assinatura);
-		sintaxAnalyzer.addNonTerminal(diversas_atribuicoes);
-		sintaxAnalyzer.addNonTerminal(comparacao);
-		sintaxAnalyzer.addNonTerminal(assinatura_argumentos);
-		sintaxAnalyzer.addNonTerminal(argumentos);
-		sintaxAnalyzer.addNonTerminal(separa_argumentos);
-		sintaxAnalyzer.addNonTerminal(escopo_loop);
-		sintaxAnalyzer.addNonTerminal(separa_escopo_loop);
-		sintaxAnalyzer.addNonTerminal(escopo_condicional);
-		sintaxAnalyzer.addNonTerminal(separa_escopo_condicional);
-		sintaxAnalyzer.addNonTerminal(operacao);
-		sintaxAnalyzer.addNonTerminal(outra_operacao);
-		sintaxAnalyzer.addNonTerminal(chamada_comparacao_operacao);
-		sintaxAnalyzer.addNonTerminal(separa);
-		sintaxAnalyzer.addNonTerminal(ID_chamada_NUMERO_BOOL);
-		sintaxAnalyzer.addNonTerminal(comparador);
-		sintaxAnalyzer.addNonTerminal(operador);
+		syntaxAnalyzer.addNonTerminal(escopo);
+		syntaxAnalyzer.addNonTerminal(separa_escopo);
+		syntaxAnalyzer.addNonTerminal(declara);
+		syntaxAnalyzer.addNonTerminal(parametros);
+		syntaxAnalyzer.addNonTerminal(separa_parametros);
+		syntaxAnalyzer.addNonTerminal(escopo_funcao);
+		syntaxAnalyzer.addNonTerminal(separa_escopo_funcao);
+		syntaxAnalyzer.addNonTerminal(ID_chamada_NUMERO);
+		syntaxAnalyzer.addNonTerminal(ID_chamada);
+		syntaxAnalyzer.addNonTerminal(assinatura);
+		syntaxAnalyzer.addNonTerminal(diversas_atribuicoes);
+		syntaxAnalyzer.addNonTerminal(comparacao);
+		syntaxAnalyzer.addNonTerminal(assinatura_argumentos);
+		syntaxAnalyzer.addNonTerminal(argumentos);
+		syntaxAnalyzer.addNonTerminal(separa_argumentos);
+		syntaxAnalyzer.addNonTerminal(escopo_loop);
+		syntaxAnalyzer.addNonTerminal(separa_escopo_loop);
+		syntaxAnalyzer.addNonTerminal(escopo_condicional);
+		syntaxAnalyzer.addNonTerminal(separa_escopo_condicional);
+		syntaxAnalyzer.addNonTerminal(operacao);
+		syntaxAnalyzer.addNonTerminal(outra_operacao);
+		syntaxAnalyzer.addNonTerminal(chamada_comparacao_operacao);
+		syntaxAnalyzer.addNonTerminal(separa);
+		syntaxAnalyzer.addNonTerminal(ID_chamada_NUMERO_BOOL);
+		syntaxAnalyzer.addNonTerminal(comparador);
+		syntaxAnalyzer.addNonTerminal(operador);
 		
 		try {
-			sintaxAnalyzer.parse();
-		} catch (SintaxException e) {
+			SyntaxNode node = syntaxAnalyzer.parse();
+			NonLeaf nonLeaf = (NonLeaf) node;
+			nonLeaf.getProduction().getSemanticAction().doAction(nonLeaf);
+		} catch (SyntaxException e) {
 			System.out.println(e.getMessage());
 		} catch (TerminalNotFoundException e) {
 			System.out.println(e.getOutput());
@@ -325,3 +336,4 @@ public class SintaxAnalyzerTest {
 	}
 
 }
+

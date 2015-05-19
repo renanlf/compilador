@@ -3,7 +3,7 @@ package edu.br.ufrpe.uag.compiler.model.lexical;
 import java.util.regex.Pattern;
 
 import edu.br.ufrpe.uag.compiler.model.AntTerminal;
-import edu.br.ufrpe.uag.compiler.model.sintax.Production;
+import edu.br.ufrpe.uag.compiler.model.syntax.Production;
 
 public class Terminal implements AntTerminal {
 	public static final Terminal BLANK = new Terminal(-1, "", "BLANK");
