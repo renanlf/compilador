@@ -78,7 +78,9 @@ public class SyntaxAnalyzer {
 					cursor = root;
 				} else {
 					NonLeaf nonLeaf = new NonLeaf((NonLeaf) cursor, n, p);
-					((NonLeaf) cursor).add(nonLeaf);
+					if(!((NonLeaf) cursor).add(nonLeaf)){
+						System.out.println("not");
+					}
 					cursor = nonLeaf;
 				}
 				for (int i = p.getAntTerminals().size() - 1; i >= 0; i--) {

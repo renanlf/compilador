@@ -54,6 +54,13 @@ public class NonTerminal implements AntTerminal{
 		productions.add(p);
 	}
 	
+	public void addProduction(Terminal t, SemanticAction semanticAction) {
+		Production p = new Production();
+		p.getAntTerminals().add(t);
+		p.setSemanticAction(semanticAction);
+		productions.add(p);
+	}
+	
 	public void addProduction(Terminal t) {
 		Production p = new Production();
 		p.getAntTerminals().add(t);
