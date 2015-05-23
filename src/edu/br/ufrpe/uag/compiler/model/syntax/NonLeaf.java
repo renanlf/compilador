@@ -15,6 +15,12 @@ public class NonLeaf extends SyntaxNode{
 		this.children = new ArrayList<SyntaxNode>();
 	}
 	
+	public NonLeaf(NonLeaf node, NonTerminal nonTerminal) {
+		super(node);
+		this.nonTerminal = nonTerminal;
+		this.children = new ArrayList<SyntaxNode>();
+	}
+	
 	public boolean add(SyntaxNode node){
 		return children.add(node);
 	}

@@ -13,8 +13,8 @@ import edu.br.ufrpe.uag.compiler.model.syntax.Leaf;
 import edu.br.ufrpe.uag.compiler.model.syntax.NonLeaf;
 import edu.br.ufrpe.uag.compiler.model.syntax.NonTerminal;
 import edu.br.ufrpe.uag.compiler.model.syntax.Production;
-import edu.br.ufrpe.uag.compiler.model.syntax.SyntaxStack;
 import edu.br.ufrpe.uag.compiler.model.syntax.SyntaxNode;
+import edu.br.ufrpe.uag.compiler.model.syntax.SyntaxStack;
 
 public class SyntaxAnalyzer {
 	private final List<NonTerminal> nonTerminals;
@@ -30,9 +30,9 @@ public class SyntaxAnalyzer {
 
 	public SyntaxNode parse() throws SyntaxException,
 			TerminalNotFoundException, NonTerminalEmpty {
-		SyntaxNode root = null;
-		SyntaxNode cursor = null;
-		Production lastProduction = null;
+		
+		NonLeaf root = new NonLeaf(null, nonTerminals.get(0));
+		NonLeaf current = root;
 		Token token = lexicalAnalyzer.getNextToken();
 		SyntaxStack stack = new SyntaxStack();
 		stack.add(nonTerminals.get(0));
@@ -43,11 +43,10 @@ public class SyntaxAnalyzer {
 				Terminal t2 = (Terminal) a;
 				if (token.equals(t2)) {
 					stack.pop();
-					Leaf leaf = new Leaf((NonLeaf)cursor, token);
-					if(lastProduction.getAntTerminals().get(lastProduction.getAntTerminals().size()-1).equals(token)){
-						cursor = cursor.getNodeAnt();
+					while (current.getChildren().size() == current.getProduction().getAntTerminals().size()) {
+							current = current.getNodeAnt();
 					}
-					((NonLeaf)cursor).add(leaf);
+					current.add(new Leaf(current, token));
 					symbolTable.add(token);
 					token = lexicalAnalyzer.getNextToken();
 				} else {
@@ -65,24 +64,26 @@ public class SyntaxAnalyzer {
 					if (n.haveBlank()) {
 						// token = lexicalAnalyzer.getNextToken();
 						stack.pop();
+						current.add(new Leaf(current, new Token(Token.BLANK,
+								"empty")));
 						continue;
 					} else {
 						throw new TerminalNotFoundException(n,
 								lexicalAnalyzer.getRow(), token);
 					}
 				}
-				lastProduction = p;
-				stack.pop();
-				if (root == null) {
-					root = new NonLeaf(null, n, p);
-					cursor = root;
+				if (current.getProduction() == null) {
+					current.setProduction(p);
 				} else {
-					NonLeaf nonLeaf = new NonLeaf((NonLeaf) cursor, n, p);
-					if(!((NonLeaf) cursor).add(nonLeaf)){
-						System.out.println("not");
+					while (current.getChildren().size() == current
+							.getProduction().getAntTerminals().size()) {
+							current = current.getNodeAnt();
 					}
-					cursor = nonLeaf;
+					NonLeaf newNonLeaf = new NonLeaf(current, n, p);
+					current.add(newNonLeaf);
+					current = newNonLeaf;
 				}
+				stack.pop();
 				for (int i = p.getAntTerminals().size() - 1; i >= 0; i--) {
 					stack.add(p.getAntTerminals().get(i));
 				}

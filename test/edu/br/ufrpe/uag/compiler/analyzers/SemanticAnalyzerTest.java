@@ -318,7 +318,19 @@ separa_escopo.addProduction(executa.and(abre_parenteses).and(assinatura).and(abr
 		});
 		
 		declara.addProduction(abre_parenteses.and(assinatura).and(abre_chaves).and(escopo_funcao).and(fecha_chaves));
-		declara.addProduction(PONTOVIRGULA);
+		declara.addProduction(PONTOVIRGULA, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return ";";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
 		parametros.addProduction(INTEIRO.and(ID).and(separa_parametros));
 		parametros.addProduction(BOOLEANO.and(ID).and(separa_parametros));
@@ -493,9 +505,9 @@ separa_escopo.addProduction(executa.and(abre_parenteses).and(assinatura).and(abr
 		syntaxAnalyzer.addNonTerminal(operador);
 		
 		try {
-			SyntaxNode node = syntaxAnalyzer.parse();
-			NonLeaf nonLeaf = (NonLeaf) node;
-			System.out.println(nonLeaf.getProduction().getSemanticAction().writeJava(nonLeaf));
+			SyntaxNode root = syntaxAnalyzer.parse();
+			System.out.println(root);
+			System.out.println(((NonLeaf)root).getProduction().getSemanticAction().writeJava((NonLeaf)root));
 		} catch (SyntaxException e) {
 			System.out.println(e.getMessage());
 		} catch (TerminalNotFoundException e) {
