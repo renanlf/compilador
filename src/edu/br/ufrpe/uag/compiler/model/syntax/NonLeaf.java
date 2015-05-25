@@ -21,6 +21,14 @@ public class NonLeaf extends SyntaxNode{
 		this.children = new ArrayList<SyntaxNode>();
 	}
 	
+	public String getWriteJava(int position){
+		return ((NonLeaf)this.getChildren().get(position)).getProduction().getSemanticAction().writeJava((NonLeaf) this.getChildren().get(position));
+	}
+	
+	public String getTokenExpression(int position){
+		return ((Leaf)this.getChildren().get(position)).getToken().getExpression();
+	}
+	
 	public boolean add(SyntaxNode node){
 		return children.add(node);
 	}

@@ -57,19 +57,14 @@ public class SemanticAnalyzerTest {
 		Terminal ID = new Terminal (31, "[a-z][a-zA-Z0-9]*", "ID");
 		
 		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(
-				"inteiro a;\n"
-				+ "booleano b;\n"
-				+ "executa(inteiro a){\n"
-				+ " 	a <- 3;\n"
-				+ "		enquanto(a < 10){\n"
-				+ "			a <- a + 1;\n"
-				+ "		}\n"
-				+ "		se(a = 10){\n"
-				+ "			a <- a/2;\n"
-				+ "		}snao{\n"
-				+ "			a <- a * 2 + 5;\n"
-				+ "		}\n"
-				+ "retorne(a);\n"
+//				"inteiro a;\n"
+//				+ "executa(){\n"
+//				+ " 	a <- 3;\n"
+//				+ "}\n"
+				/*+ */"inteiro soma(inteiro a, inteiro b){\n"
+				+ "		inteiro c;\n"
+				+ "		c <- a + b;\n"
+				+ "		retorne(c);\n"
 				+ "}");
 		//Adicionando terminais ao analisador léxico
 		lexicalAnalyzer.addTerminal(executa);
@@ -204,6 +199,7 @@ public class SemanticAnalyzerTest {
 				NonLeaf separa_escopo = (NonLeaf)node.getChildren().get(7);
 				Tipo tipo = new Tipo("vazio");
 				Funcao funcao = new Funcao(id.getToken().getExpression(), tipo);
+				semanticAnalyzer.getDefinicoes().add(funcao);
 				return "void "+id.getToken().getExpression()+"("+assinatura.getProduction().getSemanticAction().writeJava(assinatura)+"{"
 						+escopo_funcao.getProduction().getSemanticAction().writeJava(escopo_funcao)+"}"
 						+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
@@ -219,7 +215,7 @@ public class SemanticAnalyzerTest {
 			}
 		});
 		
-separa_escopo.addProduction(executa.and(abre_parenteses).and(assinatura).and(abre_chaves).and(escopo_funcao).and(fecha_chaves).and(separa_escopo), new SemanticAction() {
+		separa_escopo.addProduction(executa.and(abre_parenteses).and(assinatura).and(abre_chaves).and(escopo_funcao).and(fecha_chaves).and(separa_escopo), new SemanticAction() {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
@@ -288,6 +284,7 @@ separa_escopo.addProduction(executa.and(abre_parenteses).and(assinatura).and(abr
 				NonLeaf separa_escopo = (NonLeaf)node.getChildren().get(7);
 				Tipo tipo = new Tipo("vazio");
 				Funcao funcao = new Funcao(id.getToken().getExpression(), tipo);
+				semanticAnalyzer.getDefinicoes().add(funcao);
 				return "void "+id.getToken().getExpression()+"("+assinatura.getProduction().getSemanticAction().writeJava(assinatura)+"{"
 						+escopo_funcao.getProduction().getSemanticAction().writeJava(escopo_funcao)+"}"
 						+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
@@ -317,7 +314,21 @@ separa_escopo.addProduction(executa.and(abre_parenteses).and(assinatura).and(abr
 			}
 		});
 		
-		declara.addProduction(abre_parenteses.and(assinatura).and(abre_chaves).and(escopo_funcao).and(fecha_chaves));
+		declara.addProduction(abre_parenteses.and(assinatura).and(abre_chaves).and(escopo_funcao).and(fecha_chaves), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String assinatura = ((NonLeaf)node.getChildren().get(1)).getProduction().getSemanticAction().writeJava((NonLeaf)node.getChildren().get(1));
+				String escopo_funcao = ((NonLeaf)node.getChildren().get(3)).getProduction().getSemanticAction().writeJava((NonLeaf)node.getChildren().get(3));
+				return "("+assinatura+"{\n"+"\t"+escopo_funcao+"\n}";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		declara.addProduction(PONTOVIRGULA, new SemanticAction() {
 			
 			@Override
@@ -332,148 +343,1878 @@ separa_escopo.addProduction(executa.and(abre_parenteses).and(assinatura).and(abr
 			}
 		});
 		
-		parametros.addProduction(INTEIRO.and(ID).and(separa_parametros));
-		parametros.addProduction(BOOLEANO.and(ID).and(separa_parametros));
+		parametros.addProduction(INTEIRO.and(ID).and(separa_parametros), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_parametros = node.getWriteJava(2);
+				return "int "+id+separa_parametros;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		parametros.addProduction(BOOLEANO.and(ID).and(separa_parametros), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_parametros = node.getWriteJava(2);
+				return "boolean "+id+separa_parametros;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		separa_parametros.addProduction(VIRGULA.and(parametros));
-		separa_parametros.addProduction(Terminal.BLANK);
+		separa_parametros.addProduction(VIRGULA.and(parametros), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String parametros = node.getWriteJava(1);
+				return ", "+parametros;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		separa_parametros.addProduction(Terminal.BLANK, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				// TODO Auto-generated method stub
+				return "";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		escopo_funcao.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_funcao));
-		escopo_funcao.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_funcao));
-		escopo_funcao.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_funcao));
-		escopo_funcao.addProduction(RETORNE.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao));
-		escopo_funcao.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_loop).and(fecha_chaves).and(separa_escopo_funcao));
-		escopo_funcao.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao));
-		escopo_funcao.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_funcao));
-		escopo_funcao.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_funcao));
+		escopo_funcao.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_escopo_funcao = node.getWriteJava(3);
+				return "int "+id+";"+"\n\t"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		separa_escopo_funcao.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_funcao));
-		separa_escopo_funcao.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_funcao));
-		separa_escopo_funcao.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_funcao));
-		separa_escopo_funcao.addProduction(RETORNE.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao));
-		separa_escopo_funcao.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_loop).and(fecha_chaves).and(separa_escopo_funcao));
-		separa_escopo_funcao.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao));
-		separa_escopo_funcao.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_funcao));
-		separa_escopo_funcao.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_funcao));
-		separa_escopo_funcao.addProduction(Terminal.BLANK);
+		escopo_funcao.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_escopo_funcao = node.getWriteJava(3);
+				return "boolean "+id+";"+"\n\t"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		ID_chamada_NUMERO.addProduction(ID.and(ID_chamada));
-		ID_chamada_NUMERO.addProduction(NUMEROS);
+		escopo_funcao.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String diversas_atribuicoes = node.getWriteJava(2);
+				String separa_escopo_funcao = node.getWriteJava(4);
+				return id+" = "+diversas_atribuicoes+";\n\t"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		ID_chamada.addProduction(abre_parenteses.and(assinatura_argumentos));
-		ID_chamada.addProduction(Terminal.BLANK);
+		escopo_funcao.addProduction(RETORNE.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO_BOOL = node.getWriteJava(2);
+				String separa_escopo_funcao = node.getWriteJava(5);
+				return "return("+ID_chamada_NUMERO_BOOL+");\n\t"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		assinatura.addProduction(fecha_parenteses);
-		assinatura.addProduction(INTEIRO.and(ID).and(separa_parametros).and(fecha_parenteses));
-		assinatura.addProduction(BOOLEANO.and(ID).and(separa_parametros).and(fecha_parenteses));
+		escopo_funcao.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_loop).and(fecha_chaves).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String comparacao = node.getWriteJava(2);
+				String escopo_loop = node.getWriteJava(5);
+				String separa_escopo_funcao = node.getWriteJava(7);
+				return "while("+comparacao+"){\n\t"+escopo_loop+"\n\t}"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		diversas_atribuicoes.addProduction(ID.and(chamada_comparacao_operacao));
-		diversas_atribuicoes.addProduction(NUMEROS.and(separa));
-		diversas_atribuicoes.addProduction(BOOLEANO);
+		escopo_funcao.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO_BOOL = node.getWriteJava(2);
+				String separa_escopo_funcao = node.getWriteJava(5);
+				return "System.out.println("+ID_chamada_NUMERO_BOOL+");"+"\n\t"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		comparacao.addProduction(NUMEROS.and(comparador).and(ID_chamada_NUMERO));
-		comparacao.addProduction(BOOLEANO);
-		comparacao.addProduction(ID.and(ID_chamada).and(comparador).and(ID_chamada_NUMERO));
+		escopo_funcao.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String comparacao = node.getWriteJava(2);
+				String escopo_condicional = node.getWriteJava(5);
+				String separa_escopo_funcao = node.getWriteJava(7);
+				return "if("+comparacao+"){\n\t"+escopo_condicional+"\n\t}"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		assinatura_argumentos.addProduction(fecha_parenteses);
-		assinatura_argumentos.addProduction(NUMEROS.and(separa_argumentos).and(fecha_parenteses));
-		assinatura_argumentos.addProduction(BOOLEANO.and(separa_argumentos).and(fecha_parenteses));
-		assinatura_argumentos.addProduction(ID.and(ID_chamada).and(separa_argumentos).and(fecha_parenteses));
+		escopo_funcao.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String escopo_condicional = node.getWriteJava(2);
+				String separa_escopo_funcao = node.getWriteJava(4);
+				return "else{\n\t"+escopo_condicional+"\n\t}"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		argumentos.addProduction(NUMEROS.and(separa_argumentos));
-		argumentos.addProduction(BOOLEANO.and(separa_argumentos));
-		argumentos.addProduction(ID.and(ID_chamada).and(separa_argumentos));
+		/**
+		 * separa_escopo_funcao
+		 */
 		
-		separa_argumentos.addProduction(VIRGULA.and(argumentos));
-		separa_argumentos.addProduction(Terminal.BLANK);
+		separa_escopo_funcao.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_escopo_funcao = node.getWriteJava(3);
+				return "int "+id+";"+"\n\t"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_loop));
-		escopo_loop.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_loop));
-		escopo_loop.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_loop));
-		escopo_loop.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_loop).and(fecha_chaves).and(separa_escopo_loop));
-		escopo_loop.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_loop));
-		escopo_loop.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_loop));
-		escopo_loop.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_loop));
-		escopo_loop.addProduction(PARE.and(PONTOVIRGULA).and(separa_escopo_loop));
-		escopo_loop.addProduction(CONTINUE.and(PONTOVIRGULA).and(separa_escopo_loop));
+		separa_escopo_funcao.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_escopo_funcao = node.getWriteJava(3);
+				return "boolean "+id+";"+"\n\t"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		separa_escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_loop));
-		separa_escopo_loop.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_loop));
-		separa_escopo_loop.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_loop));
-		separa_escopo_loop.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_loop).and(fecha_chaves).and(separa_escopo_loop));
-		separa_escopo_loop.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_loop));
-		separa_escopo_loop.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_loop));
-		separa_escopo_loop.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_loop));
-		separa_escopo_loop.addProduction(PARE.and(PONTOVIRGULA).and(separa_escopo_loop));
-		separa_escopo_loop.addProduction(CONTINUE.and(PONTOVIRGULA).and(separa_escopo_loop));
-		separa_escopo_loop.addProduction(Terminal.BLANK);
+		separa_escopo_funcao.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String diversas_atribuicoes = node.getWriteJava(2);
+				String separa_escopo_funcao = node.getWriteJava(4);
+				return id+" = "+diversas_atribuicoes+";\n\t"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional));
-		escopo_condicional.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional));
-		escopo_condicional.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_condicional));
-		escopo_condicional.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional));
-		escopo_condicional.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_condicional));
-		escopo_condicional.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional));
-		escopo_condicional.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional));
+		separa_escopo_funcao.addProduction(RETORNE.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO_BOOL = node.getWriteJava(2);
+				String separa_escopo_funcao = node.getWriteJava(5);
+				return "return("+ID_chamada_NUMERO_BOOL+");\n\t"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		separa_escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional));
-		separa_escopo_condicional.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional));
-		separa_escopo_condicional.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_condicional));
-		separa_escopo_condicional.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional));
-		separa_escopo_condicional.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_condicional));
-		separa_escopo_condicional.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional));
-		separa_escopo_condicional.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional));
-		separa_escopo_condicional.addProduction(Terminal.BLANK);
+		separa_escopo_funcao.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_loop).and(fecha_chaves).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String comparacao = node.getWriteJava(2);
+				String escopo_loop = node.getWriteJava(5);
+				String separa_escopo_funcao = node.getWriteJava(7);
+				return "while("+comparacao+"){\n\t"+escopo_loop+"\n\t}"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		operacao.addProduction(ID.and(ID_chamada).and(operador).and(ID_chamada_NUMERO).and(outra_operacao));
-		operacao.addProduction(NUMEROS.and(operador).and(ID_chamada_NUMERO).and(outra_operacao));
+		separa_escopo_funcao.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO_BOOL = node.getWriteJava(2);
+				String separa_escopo_funcao = node.getWriteJava(5);
+				return "System.out.println("+ID_chamada_NUMERO_BOOL+");"+"\n\t"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		outra_operacao.addProduction(MAIS.and(ID_chamada_NUMERO).and(outra_operacao));
-		outra_operacao.addProduction(MENOS.and(ID_chamada_NUMERO).and(outra_operacao));		
-		outra_operacao.addProduction(VEZES.and(ID_chamada_NUMERO).and(outra_operacao));
-		outra_operacao.addProduction(DIVIDIDO.and(ID_chamada_NUMERO).and(outra_operacao));
-		outra_operacao.addProduction(Terminal.BLANK);
+		separa_escopo_funcao.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String comparacao = node.getWriteJava(2);
+				String escopo_condicional = node.getWriteJava(5);
+				String separa_escopo_funcao = node.getWriteJava(7);
+				return "if("+comparacao+"){\n\t"+escopo_condicional+"\n\t}"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		chamada_comparacao_operacao.addProduction(abre_parenteses.and(assinatura_argumentos).and(separa));
-		chamada_comparacao_operacao.addProduction(Terminal.BLANK);
-		chamada_comparacao_operacao.addProduction(MAIS.and(ID_chamada_NUMERO).and(outra_operacao));
-		chamada_comparacao_operacao.addProduction(MENOS.and(ID_chamada_NUMERO).and(outra_operacao));
-		chamada_comparacao_operacao.addProduction(VEZES.and(ID_chamada_NUMERO).and(outra_operacao));
-		chamada_comparacao_operacao.addProduction(DIVIDIDO.and(ID_chamada_NUMERO).and(outra_operacao));
-		chamada_comparacao_operacao.addProduction(MENORQ.and(ID_chamada_NUMERO));
-		chamada_comparacao_operacao.addProduction(MAIORQ.and(ID_chamada_NUMERO));
-		chamada_comparacao_operacao.addProduction(MENORQIGUAL.and(ID_chamada_NUMERO));
-		chamada_comparacao_operacao.addProduction(MAIORQIGUAL.and(ID_chamada_NUMERO));
-		chamada_comparacao_operacao.addProduction(IGUAL.and(ID_chamada_NUMERO));
-		chamada_comparacao_operacao.addProduction(DIFERENTE.and(ID_chamada_NUMERO));
+		separa_escopo_funcao.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String escopo_condicional = node.getWriteJava(2);
+				String separa_escopo_funcao = node.getWriteJava(4);
+				return "else{\n\t"+escopo_condicional+"\n\t}"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		separa.addProduction(MAIS.and(ID_chamada_NUMERO).and(outra_operacao));
-		separa.addProduction(MENOS.and(ID_chamada_NUMERO).and(outra_operacao));
-		separa.addProduction(VEZES.and(ID_chamada_NUMERO).and(outra_operacao));
-		separa.addProduction(DIVIDIDO.and(ID_chamada_NUMERO).and(outra_operacao));
-		separa.addProduction(MENORQ.and(ID_chamada_NUMERO));
-		separa.addProduction(MAIORQ.and(ID_chamada_NUMERO));
-		separa.addProduction(MENORQIGUAL.and(ID_chamada_NUMERO));
-		separa.addProduction(MAIORQIGUAL.and(ID_chamada_NUMERO));
-		separa.addProduction(IGUAL.and(ID_chamada_NUMERO));
-		separa.addProduction(DIFERENTE.and(ID_chamada_NUMERO));
-		separa.addProduction(Terminal.BLANK);
+		separa_escopo_funcao.addProduction(Terminal.BLANK, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		ID_chamada_NUMERO_BOOL.addProduction(ID.and(ID_chamada));
-		ID_chamada_NUMERO_BOOL.addProduction(NUMEROS);
-		ID_chamada_NUMERO_BOOL.addProduction(BOOLEANO);
+		ID_chamada_NUMERO.addProduction(ID.and(ID_chamada), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String ID_chamada = node.getWriteJava(1);
+				return id+ID_chamada;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		ID_chamada_NUMERO.addProduction(NUMEROS, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String numeros = node.getTokenExpression(0);
+				return numeros;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		comparador.addProduction(MENORQ);
-		comparador.addProduction(MAIORQ);
-		comparador.addProduction(MENORQIGUAL);
-		comparador.addProduction(MAIORQIGUAL);
-		comparador.addProduction(IGUAL);
-		comparador.addProduction(DIFERENTE);
+		ID_chamada.addProduction(abre_parenteses.and(assinatura_argumentos), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String assinatura_argumentos = node.getWriteJava(1);
+				return "("+assinatura_argumentos;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
-		operador.addProduction(MAIS);
-		operador.addProduction(MENOS);
-		operador.addProduction(VEZES);
-		operador.addProduction(DIVIDIDO);
+		ID_chamada.addProduction(Terminal.BLANK, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		assinatura.addProduction(fecha_parenteses, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return ")";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		assinatura.addProduction(INTEIRO.and(ID).and(separa_parametros).and(fecha_parenteses), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_parametros = node.getWriteJava(2);
+				return "int "+id+separa_parametros+")";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		assinatura.addProduction(BOOLEANO.and(ID).and(separa_parametros).and(fecha_parenteses), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_parametros = node.getWriteJava(2);
+				return "boolean "+id+separa_parametros+")";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		diversas_atribuicoes.addProduction(ID.and(chamada_comparacao_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String chamada_comparacao_operacao = node.getWriteJava(1);
+				return id+chamada_comparacao_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		diversas_atribuicoes.addProduction(NUMEROS.and(separa), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String numeros = node.getTokenExpression(0);
+				String separa = node.getWriteJava(1);
+				return numeros+separa;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		diversas_atribuicoes.addProduction(BOOLEANO, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "boolean";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		comparacao.addProduction(NUMEROS.and(comparador).and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String numeros = node.getTokenExpression(0);
+				String comparador = node.getWriteJava(1);
+				String ID_chamada_NUMERO = node.getWriteJava(2);
+				return numeros+comparador+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		comparacao.addProduction(BOOLEANO, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "boolean";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		comparacao.addProduction(ID.and(ID_chamada).and(comparador).and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String id_chamada = node.getWriteJava(1);
+				String comparador = node.getWriteJava(2);
+				String ID_chamada_NUMERO = node.getWriteJava(3);
+				return id+id_chamada+comparador+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		assinatura_argumentos.addProduction(fecha_parenteses, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return ")";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		assinatura_argumentos.addProduction(NUMEROS.and(separa_argumentos).and(fecha_parenteses), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String numeros = node.getTokenExpression(0);
+				String separa_argumentos = node.getTokenExpression(1);
+				return numeros+separa_argumentos+")";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		assinatura_argumentos.addProduction(BOOLEANO.and(separa_argumentos).and(fecha_parenteses), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+//				String numeros = node.getTokenExpression(0);
+				String separa_argumentos = node.getTokenExpression(1);
+				return "boolean"+separa_argumentos+")";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		assinatura_argumentos.addProduction(ID.and(ID_chamada).and(separa_argumentos).and(fecha_parenteses), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String id_chamada = node.getWriteJava(1);
+				String separa_argumentos = node.getWriteJava(2);
+				return id+id_chamada+separa_argumentos+")";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		argumentos.addProduction(NUMEROS.and(separa_argumentos), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String numeros = node.getTokenExpression(0);
+				String separa_argumentos = node.getWriteJava(1);
+				return numeros+separa_argumentos;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		argumentos.addProduction(BOOLEANO.and(separa_argumentos), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String separa_argumentos = node.getWriteJava(1);
+				return "boolean"+separa_argumentos;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		argumentos.addProduction(ID.and(ID_chamada).and(separa_argumentos), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String id_chamada = node.getWriteJava(1);
+				String separa_argumentos = node.getWriteJava(2);
+				return id+id_chamada+separa_argumentos;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_argumentos.addProduction(VIRGULA.and(argumentos), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String argumentos = node.getWriteJava(1);
+				return ", "+argumentos;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		separa_argumentos.addProduction(Terminal.BLANK, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_escopo_loop = node.getWriteJava(3);
+				return "int "+id+";"+"\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_loop.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_escopo_loop = node.getWriteJava(3);
+				return "boolean "+id+";"+"\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_loop.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String diversas_atribuicoes = node.getWriteJava(2);
+				String separa_escopo_loop = node.getWriteJava(4);
+				return id+" = "+diversas_atribuicoes+";\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_loop.addProduction(RETORNE.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO_BOOL = node.getWriteJava(2);
+				String separa_escopo_loop = node.getWriteJava(5);
+				return "return("+ID_chamada_NUMERO_BOOL+");\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_loop.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_loop).and(fecha_chaves).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String comparacao = node.getWriteJava(2);
+				String escopo_loop = node.getWriteJava(5);
+				String separa_escopo_loop = node.getWriteJava(7);
+				return "while("+comparacao+"){\n\t"+escopo_loop+"\n\t}"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_loop.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO_BOOL = node.getWriteJava(2);
+				String separa_escopo_loop = node.getWriteJava(5);
+				return "System.out.println("+ID_chamada_NUMERO_BOOL+");"+"\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_loop.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String comparacao = node.getWriteJava(2);
+				String escopo_condicional = node.getWriteJava(5);
+				String separa_escopo_loop = node.getWriteJava(7);
+				return "if("+comparacao+"){\n\t"+escopo_condicional+"\n\t}"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_loop.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String escopo_condicional = node.getWriteJava(2);
+				String separa_escopo_loop = node.getWriteJava(4);
+				return "else{\n\t"+escopo_condicional+"\n\t}"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_loop.addProduction(PARE.and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String separa_escopo_loop = node.getWriteJava(2);
+				return "break;\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_loop.addProduction(CONTINUE.and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String separa_escopo_loop = node.getWriteJava(2);
+				return "continue;\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		
+		/**
+		 * separa_escopo_loop
+		 */
+		
+		separa_escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_escopo_loop = node.getWriteJava(3);
+				return "int "+id+";"+"\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_loop.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_escopo_loop = node.getWriteJava(3);
+				return "boolean "+id+";"+"\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_loop.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String diversas_atribuicoes = node.getWriteJava(2);
+				String separa_escopo_loop = node.getWriteJava(4);
+				return id+" = "+diversas_atribuicoes+";\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_loop.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_loop).and(fecha_chaves).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String comparacao = node.getWriteJava(2);
+				String escopo_loop = node.getWriteJava(5);
+				String separa_escopo_loop = node.getWriteJava(7);
+				return "while("+comparacao+"){\n\t"+escopo_loop+"\n\t}"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_loop.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO_BOOL = node.getWriteJava(2);
+				String separa_escopo_loop = node.getWriteJava(5);
+				return "System.out.println("+ID_chamada_NUMERO_BOOL+");"+"\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_loop.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String comparacao = node.getWriteJava(2);
+				String escopo_condicional = node.getWriteJava(5);
+				String separa_escopo_loop = node.getWriteJava(7);
+				return "if("+comparacao+"){\n\t"+escopo_condicional+"\n\t}"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_loop.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String escopo_condicional = node.getWriteJava(2);
+				String separa_escopo_loop = node.getWriteJava(4);
+				return "else{\n\t"+escopo_condicional+"\n\t}"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		
+		separa_escopo_loop.addProduction(PARE.and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String separa_escopo_loop = node.getWriteJava(2);
+				return "break;\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_loop.addProduction(CONTINUE.and(PONTOVIRGULA).and(separa_escopo_loop), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String separa_escopo_loop = node.getWriteJava(2);
+				return "continue;\n\t"+separa_escopo_loop;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_loop.addProduction(Terminal.BLANK, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+
+		
+		escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_escopo_condicional = node.getWriteJava(3);
+				return "int "+id+";"+"\n\t"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_condicional.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_escopo_condicional = node.getWriteJava(3);
+				return "boolean "+id+";"+"\n\t"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_condicional.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String diversas_atribuicoes = node.getWriteJava(2);
+				String separa_escopo_condicional = node.getWriteJava(4);
+				return id+" = "+diversas_atribuicoes+";\n\t"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_condicional.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String comparacao = node.getWriteJava(2);
+				String escopo_condicional = node.getWriteJava(5);
+				String separa_escopo_condicional = node.getWriteJava(7);
+				return "while("+comparacao+"){\n\t"+escopo_condicional+"\n\t}"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_condicional.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO_BOOL = node.getWriteJava(2);
+				String separa_escopo_condicional = node.getWriteJava(5);
+				return "System.out.println("+ID_chamada_NUMERO_BOOL+");"+"\n\t"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_condicional.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String comparacao = node.getWriteJava(2);
+				String escopo_condicional = node.getWriteJava(5);
+				String separa_escopo_condicional = node.getWriteJava(7);
+				return "if("+comparacao+"){\n\t"+escopo_condicional+"\n\t}"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		escopo_condicional.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String escopo_condicional = node.getWriteJava(2);
+				String separa_escopo_condicional = node.getWriteJava(4);
+				return "else{\n\t"+escopo_condicional+"\n\t}"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		/**
+		 * separa_escopo_condicional
+		 */
+		
+		separa_escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_escopo_condicional = node.getWriteJava(3);
+				return "int "+id+";"+"\n\t"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_condicional.addProduction(BOOLEANO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(1);
+				String separa_escopo_condicional = node.getWriteJava(3);
+				return "boolean "+id+";"+"\n\t"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_condicional.addProduction(ID.and(ATRIBUIDOR).and(diversas_atribuicoes).and(PONTOVIRGULA).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String diversas_atribuicoes = node.getWriteJava(2);
+				String separa_escopo_condicional = node.getWriteJava(4);
+				return id+" = "+diversas_atribuicoes+";\n\t"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_condicional.addProduction(ENQUANTO.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String comparacao = node.getWriteJava(2);
+				String escopo_condicional = node.getWriteJava(5);
+				String separa_escopo_condicional = node.getWriteJava(7);
+				return "while("+comparacao+"){\n\t"+escopo_condicional+"\n\t}"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_condicional.addProduction(IMPRIMA.and(abre_parenteses).and(ID_chamada_NUMERO_BOOL).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO_BOOL = node.getWriteJava(2);
+				String separa_escopo_condicional = node.getWriteJava(5);
+				return "System.out.println("+ID_chamada_NUMERO_BOOL+");"+"\n\t"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_condicional.addProduction(SE.and(abre_parenteses).and(comparacao).and(fecha_parenteses).and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String comparacao = node.getWriteJava(2);
+				String escopo_condicional = node.getWriteJava(5);
+				String separa_escopo_condicional = node.getWriteJava(7);
+				return "if("+comparacao+"){\n\t"+escopo_condicional+"\n\t}"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_condicional.addProduction(SENAO.and(abre_chaves).and(escopo_condicional).and(fecha_chaves).and(separa_escopo_condicional), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String escopo_condicional = node.getWriteJava(2);
+				String separa_escopo_condicional = node.getWriteJava(4);
+				return "else{\n\t"+escopo_condicional+"\n\t}"+separa_escopo_condicional;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa_escopo_condicional.addProduction(Terminal.BLANK, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		operacao.addProduction(ID.and(ID_chamada).and(operador).and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String ID_chamada = node.getWriteJava(1);
+				String operador = node.getWriteJava(2);
+				String ID_chamada_NUMERO = node.getWriteJava(3);
+				String outra_operacao = node.getWriteJava(4);
+				return id+ID_chamada+operador+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		operacao.addProduction(NUMEROS.and(operador).and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String numeros = node.getTokenExpression(0);
+				String operador = node.getWriteJava(1);
+				String ID_chamada_NUMERO = node.getWriteJava(2);
+				String outra_operacao = node.getWriteJava(3);
+				return numeros+operador+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		outra_operacao.addProduction(MAIS.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				String outra_operacao = node.getWriteJava(2);
+				return "+"+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		outra_operacao.addProduction(MENOS.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				String outra_operacao = node.getWriteJava(2);
+				return "-"+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});		
+		outra_operacao.addProduction(VEZES.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				String outra_operacao = node.getWriteJava(2);
+				return "*"+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		outra_operacao.addProduction(DIVIDIDO.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				String outra_operacao = node.getWriteJava(2);
+				return "/"+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		outra_operacao.addProduction(Terminal.BLANK, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		chamada_comparacao_operacao.addProduction(abre_parenteses.and(assinatura_argumentos).and(separa), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String assinatura_argumentos = node.getWriteJava(1);
+				String separa = node.getWriteJava(2);
+				return "("+assinatura_argumentos+separa;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		chamada_comparacao_operacao.addProduction(Terminal.BLANK, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		chamada_comparacao_operacao.addProduction(MAIS.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				String outra_operacao = node.getWriteJava(2);
+				return "+"+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		chamada_comparacao_operacao.addProduction(MENOS.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				String outra_operacao = node.getWriteJava(2);
+				return "-"+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		chamada_comparacao_operacao.addProduction(VEZES.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				String outra_operacao = node.getWriteJava(2);
+				return "*"+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		chamada_comparacao_operacao.addProduction(DIVIDIDO.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				String outra_operacao = node.getWriteJava(2);
+				return "/"+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		chamada_comparacao_operacao.addProduction(MENORQ.and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				return "<"+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		chamada_comparacao_operacao.addProduction(MAIORQ.and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				return ">"+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		chamada_comparacao_operacao.addProduction(MENORQIGUAL.and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				return "<="+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		chamada_comparacao_operacao.addProduction(MAIORQIGUAL.and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				return ">="+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		chamada_comparacao_operacao.addProduction(IGUAL.and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				return "=="+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		chamada_comparacao_operacao.addProduction(DIFERENTE.and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				return "!="+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		separa.addProduction(MAIS.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				String outra_operacao = node.getWriteJava(2);
+				return "+"+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		separa.addProduction(MENOS.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				String outra_operacao = node.getWriteJava(2);
+				return "-"+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		separa.addProduction(VEZES.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				String outra_operacao = node.getWriteJava(2);
+				return "*"+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		separa.addProduction(DIVIDIDO.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				String outra_operacao = node.getWriteJava(2);
+				return "/"+ID_chamada_NUMERO+outra_operacao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		separa.addProduction(MENORQ.and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				return "<"+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		separa.addProduction(MAIORQ.and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				return ">"+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		separa.addProduction(MENORQIGUAL.and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				return "<="+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		separa.addProduction(MAIORQIGUAL.and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				return ">="+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		separa.addProduction(IGUAL.and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				return "=="+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		separa.addProduction(DIFERENTE.and(ID_chamada_NUMERO), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String ID_chamada_NUMERO = node.getWriteJava(1);
+				return "!="+ID_chamada_NUMERO;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		separa.addProduction(Terminal.BLANK, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		ID_chamada_NUMERO_BOOL.addProduction(ID.and(ID_chamada), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(0);
+				String ID_chamada = node.getWriteJava(1);
+				return id+ID_chamada;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		ID_chamada_NUMERO_BOOL.addProduction(NUMEROS, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String numeros = node.getTokenExpression(0);
+				return numeros;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		ID_chamada_NUMERO_BOOL.addProduction(BOOLEANO, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "boolean";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		comparador.addProduction(MENORQ, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "<";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		comparador.addProduction(MAIORQ, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return ">";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		comparador.addProduction(MENORQIGUAL, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "<=";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		comparador.addProduction(MAIORQIGUAL, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return ">=";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		comparador.addProduction(IGUAL, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "==";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		comparador.addProduction(DIFERENTE, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "!=";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		operador.addProduction(MAIS, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "+";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		operador.addProduction(MENOS, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "-";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		operador.addProduction(VEZES, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "*";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		operador.addProduction(DIVIDIDO, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "/";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
 		
 		//Adicionando NonTerminal ao analisador sintático
