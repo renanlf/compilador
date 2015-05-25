@@ -19,13 +19,11 @@ import edu.br.ufrpe.uag.compiler.model.syntax.SyntaxStack;
 public class SyntaxAnalyzer {
 	private final List<NonTerminal> nonTerminals;
 	private final LexicalAnalyzer lexicalAnalyzer;
-	private final List<Token> symbolTable;
 
 	public SyntaxAnalyzer(LexicalAnalyzer lexicalAnalyzer) {
 		super();
 		this.lexicalAnalyzer = lexicalAnalyzer;
 		this.nonTerminals = new ArrayList<NonTerminal>();
-		this.symbolTable = new ArrayList<Token>();
 	}
 
 	public SyntaxNode parse() throws SyntaxException,
@@ -33,61 +31,86 @@ public class SyntaxAnalyzer {
 		
 		NonLeaf root = new NonLeaf(null, nonTerminals.get(0));
 		NonLeaf current = root;
+		Production p;
 		Token token = lexicalAnalyzer.getNextToken();
 		SyntaxStack stack = new SyntaxStack();
 		stack.add(nonTerminals.get(0));
-		while (token != null) {
-			// Terminal t = token.getTerminal();
-			AntTerminal a = stack.getLast();
-			if (a instanceof Terminal) {
-				Terminal t2 = (Terminal) a;
-				if (token.equals(t2)) {
-					stack.pop();
-					while (current.getChildren().size() == current.getProduction().getAntTerminals().size()) {
-							current = current.getNodeAnt();
+		while (stack.size() > 0) {
+			if(token != null){
+				// Terminal t = token.getTerminal();
+				AntTerminal a = stack.getLast();
+				if (a instanceof Terminal) {
+//					System.out.println(token);
+					Terminal t2 = (Terminal) a;
+					if (token.equals(t2)) {
+						stack.pop();
+						while (current.getChildren().size() == current.getProduction().getAntTerminals().size()) {
+								current = current.getNodeAnt();
+						}
+						current.add(new Leaf(current, token));
+						token = lexicalAnalyzer.getNextToken();
+					} else {
+						throw new SyntaxException(t2, lexicalAnalyzer.getRow(),
+								token);
 					}
-					current.add(new Leaf(current, token));
-					symbolTable.add(token);
-					token = lexicalAnalyzer.getNextToken();
 				} else {
-					throw new SyntaxException(t2, lexicalAnalyzer.getRow(),
-							token);
+					NonTerminal n = (NonTerminal) a;
+					if (n.getProductions().size() == 0) {
+						throw new NonTerminalEmpty(n);
+					}
+					p = n.getProduction(token);
+					if (p == null) {
+						if (n.haveBlank()) {
+							// token = lexicalAnalyzer.getNextToken();
+							p = n.getProduction(Terminal.BLANK);
+							while (current.getChildren().size() == current.getProduction().getAntTerminals().size()) {
+								current = current.getNodeAnt();
+							}
+							NonLeaf nonTerminalBlank = new NonLeaf(current, n, p);
+							
+							Leaf blank = new Leaf(nonTerminalBlank, new Token(Terminal.BLANK, "empty"));
+							nonTerminalBlank.add(blank);
+							
+							current.add(nonTerminalBlank);
+							
+							stack.pop();
+							continue;
+						} else {
+							throw new TerminalNotFoundException(n,
+									lexicalAnalyzer.getRow(), token);
+						}
+					}
+					if (current.getProduction() == null) {
+						current.setProduction(p);
+					} else {
+						while (current.getChildren().size() == current
+								.getProduction().getAntTerminals().size()) {
+								current = current.getNodeAnt();
+						}
+						NonLeaf newNonLeaf = new NonLeaf(current, n, p);
+						current.add(newNonLeaf);
+						current = newNonLeaf;
+					}
+					stack.pop();
+					for (int i = p.getAntTerminals().size() - 1; i >= 0; i--) {
+						stack.add(p.getAntTerminals().get(i));
+					}
+	
 				}
 			} else {
-				NonTerminal n = (NonTerminal) a;
-				Production p;
-				if (n.getProductions().size() == 0) {
-					throw new NonTerminalEmpty(n);
+				while (current.getChildren().size() == current
+						.getProduction().getAntTerminals().size()) {
+						current = current.getNodeAnt();
 				}
-				p = n.getProduction(token);
-				if (p == null) {
-					if (n.haveBlank()) {
-						// token = lexicalAnalyzer.getNextToken();
-						stack.pop();
-						current.add(new Leaf(current, new Token(Token.BLANK,
-								"empty")));
-						continue;
-					} else {
-						throw new TerminalNotFoundException(n,
-								lexicalAnalyzer.getRow(), token);
-					}
-				}
-				if (current.getProduction() == null) {
-					current.setProduction(p);
+				NonLeaf last = new NonLeaf(current, (NonTerminal)stack.getLast());
+				current.add(last);
+				current = last;
+				if(current.getNonTerminal().haveBlank()){
+					current.add(new Leaf(current, new Token(Terminal.BLANK, "empty")));
+					stack.pop();
 				} else {
-					while (current.getChildren().size() == current
-							.getProduction().getAntTerminals().size()) {
-							current = current.getNodeAnt();
-					}
-					NonLeaf newNonLeaf = new NonLeaf(current, n, p);
-					current.add(newNonLeaf);
-					current = newNonLeaf;
+					throw new TerminalNotFoundException(current.getNonTerminal(), lexicalAnalyzer.getRow(), new Token(Terminal.EOF, "$"));
 				}
-				stack.pop();
-				for (int i = p.getAntTerminals().size() - 1; i >= 0; i--) {
-					stack.add(p.getAntTerminals().get(i));
-				}
-
 			}
 		}
 		return root;

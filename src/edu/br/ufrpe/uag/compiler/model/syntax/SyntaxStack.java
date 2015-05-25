@@ -25,6 +25,10 @@ public class SyntaxStack {
 		return stack.add(a);
 	}
 	
+	public int size(){
+		return stack.size();
+	}
+	
 	
 	
 }

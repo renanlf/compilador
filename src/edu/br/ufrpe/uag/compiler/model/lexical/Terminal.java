@@ -7,6 +7,7 @@ import edu.br.ufrpe.uag.compiler.model.syntax.Production;
 
 public class Terminal implements AntTerminal {
 	public static final Terminal BLANK = new Terminal(-1, "", "BLANK");
+	public static final Terminal EOF = new Terminal(-2, "", "EOF");
 
 	private final Pattern regularExpression;
 	private final String name;

@@ -22,7 +22,12 @@ public class NonLeaf extends SyntaxNode{
 	}
 	
 	public String getWriteJava(int position){
-		return ((NonLeaf)this.getChildren().get(position)).getProduction().getSemanticAction().writeJava((NonLeaf) this.getChildren().get(position));
+		NonLeaf child = (NonLeaf)this.getChildren().get(position);
+		if(child.getProduction() != null){
+			return child.getProduction().getSemanticAction().writeJava(child);
+		} else {
+			return "";
+		}
 	}
 	
 	public String getTokenExpression(int position){

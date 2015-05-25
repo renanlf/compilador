@@ -57,15 +57,17 @@ public class SemanticAnalyzerTest {
 		Terminal ID = new Terminal (31, "[a-z][a-zA-Z0-9]*", "ID");
 		
 		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(
-//				"inteiro a;\n"
-//				+ "executa(){\n"
-//				+ " 	a <- 3;\n"
+//				"inteiro soma(inteiro a, inteiro b){\n"
+//				+ "		inteiro c;\n"
+//				+ "		c <- a + b;\n"
+//				+ "		imprima(c);"
 //				+ "}\n"
-				/*+ */"inteiro soma(inteiro a, inteiro b){\n"
-				+ "		inteiro c;\n"
-				+ "		c <- a + b;\n"
-				+ "		retorne(c);\n"
-				+ "}");
+				"inteiro multiplica(inteiro a, inteiro vezes){\n"
+				+ "		enquanto(vezes > 0){\n"
+				+ "			a <- a + a;\n"
+				+ "			vezes <- vezes - 1;\n"
+				+ "		}"
+				+ "}\n");
 		//Adicionando terminais ao analisador léxico
 		lexicalAnalyzer.addTerminal(executa);
 		lexicalAnalyzer.addTerminal(abre_parenteses);
@@ -151,11 +153,10 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
-				Leaf id = (Leaf)node.getChildren().get(1);
-				NonLeaf declara = (NonLeaf)node.getChildren().get(2);
-				NonLeaf separa_escopo = (NonLeaf)node.getChildren().get(3);
-				return "int "+id.getToken().getExpression()+declara.getProduction().getSemanticAction().writeJava(declara)
-						+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
+				String id = node.getTokenExpression(1);
+				String declara = node.getWriteJava(2);
+				String separa_escopo = node.getWriteJava(3);
+				return "int "+id+declara+separa_escopo;
 			}
 			
 			@Override
@@ -309,7 +310,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -325,7 +326,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -338,7 +339,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -354,7 +355,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -369,7 +370,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -384,7 +385,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -392,13 +393,13 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
-				// TODO Auto-generated method stub
+				
 				return "";
 			}
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -414,7 +415,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -430,7 +431,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -447,7 +448,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -463,7 +464,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -480,7 +481,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -496,7 +497,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -513,7 +514,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -529,7 +530,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -549,7 +550,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -565,7 +566,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -582,7 +583,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -598,7 +599,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -615,7 +616,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -631,7 +632,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -648,7 +649,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -664,7 +665,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -678,7 +679,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -694,7 +695,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -708,7 +709,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -723,7 +724,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -737,7 +738,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -751,7 +752,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -767,7 +768,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -783,7 +784,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -799,7 +800,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -815,7 +816,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -829,7 +830,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -846,7 +847,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -860,7 +861,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -878,7 +879,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -892,7 +893,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -908,7 +909,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -923,7 +924,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -940,7 +941,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -956,7 +957,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -971,7 +972,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -988,7 +989,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1003,7 +1004,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1016,7 +1017,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1032,7 +1033,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1048,7 +1049,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1065,7 +1066,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1081,7 +1082,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1098,7 +1099,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1114,7 +1115,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1131,7 +1132,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1147,7 +1148,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1162,7 +1163,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1177,7 +1178,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1198,7 +1199,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1214,7 +1215,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1231,7 +1232,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1248,7 +1249,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1264,7 +1265,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1281,7 +1282,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1297,7 +1298,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1313,7 +1314,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1328,7 +1329,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1342,7 +1343,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1359,7 +1360,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1375,7 +1376,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1392,7 +1393,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1409,7 +1410,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1425,7 +1426,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1442,7 +1443,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1458,7 +1459,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1478,7 +1479,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1494,7 +1495,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1511,7 +1512,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1528,7 +1529,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1544,7 +1545,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1561,7 +1562,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1577,7 +1578,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1591,7 +1592,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1610,7 +1611,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1628,7 +1629,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1644,7 +1645,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1659,7 +1660,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});		
@@ -1674,7 +1675,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1689,7 +1690,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1702,7 +1703,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1718,7 +1719,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1732,7 +1733,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1748,7 +1749,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1763,7 +1764,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1778,7 +1779,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1793,7 +1794,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1807,7 +1808,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1821,7 +1822,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1835,7 +1836,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1849,7 +1850,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1863,7 +1864,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1877,7 +1878,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1893,7 +1894,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1908,7 +1909,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1923,7 +1924,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1938,7 +1939,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1952,7 +1953,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1966,7 +1967,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1980,7 +1981,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -1994,7 +1995,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2008,7 +2009,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2022,7 +2023,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2035,7 +2036,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2051,7 +2052,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2066,7 +2067,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2079,7 +2080,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2093,7 +2094,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2106,7 +2107,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2119,7 +2120,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2132,7 +2133,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2145,7 +2146,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2158,7 +2159,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2172,7 +2173,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2185,7 +2186,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2198,7 +2199,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2211,7 +2212,7 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -2247,8 +2248,9 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 		
 		try {
 			SyntaxNode root = syntaxAnalyzer.parse();
-			System.out.println(root);
-			System.out.println(((NonLeaf)root).getProduction().getSemanticAction().writeJava((NonLeaf)root));
+//			System.out.println(root);
+			String out = ((NonLeaf)root).getProduction().getSemanticAction().writeJava((NonLeaf)root);
+			System.out.println(out);
 		} catch (SyntaxException e) {
 			System.out.println(e.getMessage());
 		} catch (TerminalNotFoundException e) {
