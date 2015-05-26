@@ -57,17 +57,11 @@ public class SemanticAnalyzerTest {
 		Terminal ID = new Terminal (31, "[a-z][a-zA-Z0-9]*", "ID");
 		
 		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(
-//				"inteiro soma(inteiro a, inteiro b){\n"
-//				+ "		inteiro c;\n"
-//				+ "		c <- a + b;\n"
-//				+ "		imprima(c);"
-//				+ "}\n"
-				"inteiro multiplica(inteiro a, inteiro vezes){\n"
-				+ "		enquanto(vezes > 0){\n"
-				+ "			a <- a + a;\n"
-				+ "			vezes <- vezes - 1;\n"
-				+ "		}"
-				+ "}\n");
+				  "inteiro a;\n"
+				+ "executa(){\n"
+				+ "	inteiro c;\n"
+				+ " c <- 3;"
+				+ "}");
 		//Adicionando terminais ao analisador léxico
 		lexicalAnalyzer.addTerminal(executa);
 		lexicalAnalyzer.addTerminal(abre_parenteses);
@@ -136,9 +130,9 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
-				NonLeaf escopo_funcao = (NonLeaf)node.getChildren().get(4);
-				NonLeaf separa_escopo = (NonLeaf)node.getChildren().get(6);
-				return "public void main(String args[]){"+escopo_funcao.getProduction().getSemanticAction().writeJava(escopo_funcao)+"}"+escopo_funcao.getProduction().getSemanticAction().writeJava(separa_escopo);
+				String escopo_funcao = node.getWriteJava(4);
+				String separa_escopo = node.getWriteJava(6);
+				return "public void main(String args[]){"+escopo_funcao+"}"+separa_escopo;
 			}
 			
 			@Override
@@ -2248,8 +2242,9 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 		
 		try {
 			SyntaxNode root = syntaxAnalyzer.parse();
-//			System.out.println(root);
-			String out = ((NonLeaf)root).getProduction().getSemanticAction().writeJava((NonLeaf)root);
+			System.out.println(root);
+			SemanticAction startAction = ((NonLeaf)root).getProduction().getSemanticAction();
+			String out = startAction.writeJava((NonLeaf)root);
 			System.out.println(out);
 		} catch (SyntaxException e) {
 			System.out.println(e.getMessage());
