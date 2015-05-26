@@ -57,11 +57,16 @@ public class SemanticAnalyzerTest {
 		Terminal ID = new Terminal (31, "[a-z][a-zA-Z0-9]*", "ID");
 		
 		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(
-				  "inteiro a;\n"
+				  "inteiro multiplica(inteiro a, inteiro b){\n"
+				+ "		enquanto(b > 1){\n"
+				+ "			a <- a + a;"
+				+ "			b <- b - 1;"
+				+ "		}"
+				+ "		retorne(a);"
+				+ "\n}"
 				+ "executa(){\n"
-				+ "	inteiro c;\n"
-				+ " c <- 3;"
-				+ "}");
+				+ "		imprima(multiplica(3,2));"
+				+ "\n}");
 		//Adicionando terminais ao analisador léxico
 		lexicalAnalyzer.addTerminal(executa);
 		lexicalAnalyzer.addTerminal(abre_parenteses);
@@ -126,13 +131,13 @@ public class SemanticAnalyzerTest {
 		NonTerminal comparador = new NonTerminal("comparador");
 		NonTerminal operador = new NonTerminal("operador");
 		//construção da gramática
-		escopo.addProduction(executa.and(abre_parenteses).and(assinatura).and(abre_chaves).and(escopo_funcao).and(fecha_chaves).and(separa_escopo), new SemanticAction() {
+		escopo.addProduction(executa.and(abre_parenteses).and(fecha_parenteses).and(abre_chaves).and(escopo_funcao).and(fecha_chaves).and(separa_escopo), new SemanticAction() {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
 				String escopo_funcao = node.getWriteJava(4);
 				String separa_escopo = node.getWriteJava(6);
-				return "public void main(String args[]){"+escopo_funcao+"}"+separa_escopo;
+				return "public static void main(String args[]){\n"+escopo_funcao+"\n}"+separa_escopo;
 			}
 			
 			@Override
@@ -140,6 +145,7 @@ public class SemanticAnalyzerTest {
 				Tipo tipoExecuta = new Tipo("executa");
 				Funcao executa = new Funcao("executa", tipoExecuta);
 				NonLeaf assinatura = (NonLeaf)node.getChildren().get(2);
+				
 				assinatura.getProduction().getSemanticAction().doAction(assinatura, executa);
 			}
 		});
@@ -150,7 +156,7 @@ public class SemanticAnalyzerTest {
 				String id = node.getTokenExpression(1);
 				String declara = node.getWriteJava(2);
 				String separa_escopo = node.getWriteJava(3);
-				return "int "+id+declara+separa_escopo;
+				return "static int "+id+declara+separa_escopo;
 			}
 			
 			@Override
@@ -170,7 +176,7 @@ public class SemanticAnalyzerTest {
 				Leaf id = (Leaf)node.getChildren().get(1);
 				NonLeaf declara = (NonLeaf)node.getChildren().get(2);
 				NonLeaf separa_escopo = (NonLeaf)node.getChildren().get(3);
-				return "boolean "+id.getToken().getExpression()+declara.getProduction().getSemanticAction().writeJava(declara)
+				return "static boolean "+id.getToken().getExpression()+declara.getProduction().getSemanticAction().writeJava(declara)
 						+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
 			}
 			
@@ -195,7 +201,7 @@ public class SemanticAnalyzerTest {
 				Tipo tipo = new Tipo("vazio");
 				Funcao funcao = new Funcao(id.getToken().getExpression(), tipo);
 				semanticAnalyzer.getDefinicoes().add(funcao);
-				return "void "+id.getToken().getExpression()+"("+assinatura.getProduction().getSemanticAction().writeJava(assinatura)+"{"
+				return "static void "+id.getToken().getExpression()+"("+assinatura.getProduction().getSemanticAction().writeJava(assinatura)+"{"
 						+escopo_funcao.getProduction().getSemanticAction().writeJava(escopo_funcao)+"}"
 						+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
 			}
@@ -210,13 +216,13 @@ public class SemanticAnalyzerTest {
 			}
 		});
 		
-		separa_escopo.addProduction(executa.and(abre_parenteses).and(assinatura).and(abre_chaves).and(escopo_funcao).and(fecha_chaves).and(separa_escopo), new SemanticAction() {
+		separa_escopo.addProduction(executa.and(abre_parenteses).and(fecha_parenteses).and(abre_chaves).and(escopo_funcao).and(fecha_chaves).and(separa_escopo), new SemanticAction() {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
 				NonLeaf escopo_funcao = (NonLeaf)node.getChildren().get(4);
 				NonLeaf separa_escopo = (NonLeaf)node.getChildren().get(6);
-				return "public void main(String args[]){"+escopo_funcao.getProduction().getSemanticAction().writeJava(escopo_funcao)+"}"+escopo_funcao.getProduction().getSemanticAction().writeJava(separa_escopo);
+				return "public static void main(String args[]){"+escopo_funcao.getProduction().getSemanticAction().writeJava(escopo_funcao)+"}"+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
 			}
 			
 			@Override
@@ -234,7 +240,7 @@ public class SemanticAnalyzerTest {
 				Leaf id = (Leaf)node.getChildren().get(1);
 				NonLeaf declara = (NonLeaf)node.getChildren().get(2);
 				NonLeaf separa_escopo = (NonLeaf)node.getChildren().get(3);
-				return "int "+id.getToken().getExpression()+declara.getProduction().getSemanticAction().writeJava(declara)
+				return "static int "+id.getToken().getExpression()+declara.getProduction().getSemanticAction().writeJava(declara)
 						+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
 			}
 			
@@ -255,7 +261,7 @@ public class SemanticAnalyzerTest {
 				Leaf id = (Leaf)node.getChildren().get(1);
 				NonLeaf declara = (NonLeaf)node.getChildren().get(2);
 				NonLeaf separa_escopo = (NonLeaf)node.getChildren().get(3);
-				return "boolean "+id.getToken().getExpression()+declara.getProduction().getSemanticAction().writeJava(declara)
+				return "static boolean "+id.getToken().getExpression()+declara.getProduction().getSemanticAction().writeJava(declara)
 						+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
 			}
 			
@@ -280,7 +286,7 @@ public class SemanticAnalyzerTest {
 				Tipo tipo = new Tipo("vazio");
 				Funcao funcao = new Funcao(id.getToken().getExpression(), tipo);
 				semanticAnalyzer.getDefinicoes().add(funcao);
-				return "void "+id.getToken().getExpression()+"("+assinatura.getProduction().getSemanticAction().writeJava(assinatura)+"{"
+				return "static void "+id.getToken().getExpression()+"("+assinatura.getProduction().getSemanticAction().writeJava(assinatura)+"{"
 						+escopo_funcao.getProduction().getSemanticAction().writeJava(escopo_funcao)+"}"
 						+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
 			}
@@ -328,7 +334,7 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
-				return ";";
+				return ";\n";
 			}
 			
 			@Override
@@ -897,7 +903,7 @@ public class SemanticAnalyzerTest {
 			@Override
 			public String writeJava(NonLeaf node) {
 				String numeros = node.getTokenExpression(0);
-				String separa_argumentos = node.getTokenExpression(1);
+				String separa_argumentos = node.getWriteJava(1);
 				return numeros+separa_argumentos+")";
 			}
 			
@@ -2244,7 +2250,8 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 			SyntaxNode root = syntaxAnalyzer.parse();
 			System.out.println(root);
 			SemanticAction startAction = ((NonLeaf)root).getProduction().getSemanticAction();
-			String out = startAction.writeJava((NonLeaf)root);
+			String out = "public class Program{\n";
+			out = out + startAction.writeJava((NonLeaf)root)+"\n}";
 			System.out.println(out);
 		} catch (SyntaxException e) {
 			System.out.println(e.getMessage());
