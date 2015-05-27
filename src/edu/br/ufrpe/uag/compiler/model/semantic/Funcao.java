@@ -4,24 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Funcao extends Definicao{
-	private List<Argumento> argumentos;
+	private List<Parametro> parametros;
 	
 	public Funcao(String variavel, Tipo tipo){
 		super(variavel, tipo);
-		this.argumentos = new ArrayList<Argumento>();
+		this.parametros = new ArrayList<Parametro>();
 	}
 
-	public Funcao(String variavel, Tipo tipo, List<Argumento> argumentos) {
+	public Funcao(String variavel, Tipo tipo, List<Parametro> parametros) {
 		super(variavel, tipo);
-		this.argumentos = argumentos;
+		this.parametros = parametros;
 	}
 
-	public List<Argumento> getArgumentos() {
-		return argumentos;
+	public List<Parametro> getParametros() {
+		return parametros;
 	}
 
-	public void setArgumentos(List<Argumento> argumentos) {
-		this.argumentos = argumentos;
+	public void setParametros(List<Parametro> parametros) {
+		this.parametros = parametros;
 	}
+
 	
 }

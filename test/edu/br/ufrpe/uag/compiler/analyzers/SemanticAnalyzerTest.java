@@ -1,16 +1,16 @@
 package edu.br.ufrpe.uag.compiler.analyzers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
 
+import edu.br.ufrpe.uag.compiler.SemanticException;
 import edu.br.ufrpe.uag.compiler.exceptions.LexicalException;
 import edu.br.ufrpe.uag.compiler.exceptions.NonTerminalEmpty;
 import edu.br.ufrpe.uag.compiler.exceptions.SyntaxException;
 import edu.br.ufrpe.uag.compiler.exceptions.TerminalNotFoundException;
 import edu.br.ufrpe.uag.compiler.model.lexical.Terminal;
+import edu.br.ufrpe.uag.compiler.model.semantic.Definicao;
 import edu.br.ufrpe.uag.compiler.model.semantic.Funcao;
+import edu.br.ufrpe.uag.compiler.model.semantic.Parametro;
 import edu.br.ufrpe.uag.compiler.model.semantic.SemanticAction;
 import edu.br.ufrpe.uag.compiler.model.semantic.Tipo;
 import edu.br.ufrpe.uag.compiler.model.syntax.Leaf;
@@ -64,6 +64,10 @@ public class SemanticAnalyzerTest {
 				+ "		}"
 				+ "		retorne(a);"
 				+ "\n}"
+//				+ "inteiro multiplica;\n"
+//				+ "executa(){\n"
+//				+ "		imprima(multiplica(3,2));"
+//				+ "\n}"
 				+ "executa(){\n"
 				+ "		imprima(multiplica(3,2));"
 				+ "\n}");
@@ -137,16 +141,19 @@ public class SemanticAnalyzerTest {
 			public String writeJava(NonLeaf node) {
 				String escopo_funcao = node.getWriteJava(4);
 				String separa_escopo = node.getWriteJava(6);
-				return "public static void main(String args[]){\n"+escopo_funcao+"\n}"+separa_escopo;
+				return "public static void main(String args[]){\n"+escopo_funcao+"\n}\n"+separa_escopo;
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				Tipo tipoExecuta = new Tipo("executa");
-				Funcao executa = new Funcao("executa", tipoExecuta);
-				NonLeaf assinatura = (NonLeaf)node.getChildren().get(2);
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				if(semanticAnalyzer.isExistsExecuta()){
+					throw new SemanticException("método executa duplicado!");
+				} else {
+					semanticAnalyzer.setExistsExecuta(true);
+				}
+				node.doChildAction(4, null);
+				node.doChildAction(6, null);
 				
-				assinatura.getProduction().getSemanticAction().doAction(assinatura, executa);
 			}
 		});
 		escopo.addProduction(INTEIRO.and(ID).and(declara).and(separa_escopo), new SemanticAction() {
@@ -160,13 +167,19 @@ public class SemanticAnalyzerTest {
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
 				Tipo tipo = new Tipo("inteiro");
-				List<Object> list = new ArrayList<>();
-				list.add(tipo);
-				list.add(node.getChildren().get(1));
-				NonLeaf declara = (NonLeaf)node.getChildren().get(2);
-				declara.getProduction().getSemanticAction().doAction(declara, list);
+				String id = node.getTokenExpression(1);
+				Definicao definicao = new Definicao(id, tipo);
+				if(semanticAnalyzer.getDefinicoes().contains(definicao)){
+					throw new SemanticException("Variável "+id+" foi definida mais de uma vez");
+				} else {
+					semanticAnalyzer.getDefinicoes().add(definicao);
+					node.doChildAction(2, definicao);
+					node.doChildAction(3, null);
+				}
+				
+				
 			}
 		});
 		escopo.addProduction(BOOLEANO.and(ID).and(declara).and(separa_escopo), new SemanticAction() {
@@ -181,13 +194,19 @@ public class SemanticAnalyzerTest {
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
 				Tipo tipo = new Tipo("booleano");
-				List<Object> list = new ArrayList<>();
-				list.add(tipo);
-				list.add(node.getChildren().get(1));
-				NonLeaf declara = (NonLeaf)node.getChildren().get(2);
-				declara.getProduction().getSemanticAction().doAction(declara, list);
+				String id = node.getTokenExpression(1);
+				Definicao definicao = new Definicao(id, tipo);
+				if(semanticAnalyzer.getDefinicoes().contains(definicao)){
+					throw new SemanticException("Variável "+id+" foi definida mais de uma vez");
+				} else {
+					semanticAnalyzer.getDefinicoes().add(definicao);
+					node.doChildAction(2, definicao);
+					node.doChildAction(3, null);
+				}
+				
+				
 			}
 		});
 		escopo.addProduction(VAZIO.and(ID).and(abre_parenteses).and(assinatura).and(abre_chaves).and(escopo_funcao).and(fecha_chaves).and(separa_escopo), new SemanticAction() {
@@ -201,57 +220,78 @@ public class SemanticAnalyzerTest {
 				Tipo tipo = new Tipo("vazio");
 				Funcao funcao = new Funcao(id.getToken().getExpression(), tipo);
 				semanticAnalyzer.getDefinicoes().add(funcao);
-				return "static void "+id.getToken().getExpression()+"("+assinatura.getProduction().getSemanticAction().writeJava(assinatura)+"{"
-						+escopo_funcao.getProduction().getSemanticAction().writeJava(escopo_funcao)+"}"
+				return "static void "+id.getToken().getExpression()+"("+assinatura.getProduction().getSemanticAction().writeJava(assinatura)+"{\n"
+						+escopo_funcao.getProduction().getSemanticAction().writeJava(escopo_funcao)+"\n}\n"
 						+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				Leaf id = (Leaf)node.getChildren().get(1);
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
 				Tipo tipo = new Tipo("vazio");
-				Funcao funcao = new Funcao(id.getToken().getExpression(), tipo);
-				NonLeaf assinatura = (NonLeaf)node.getChildren().get(2);
-				assinatura.getProduction().getSemanticAction().doAction(assinatura, funcao);
+				String id = node.getTokenExpression(1);
+				Funcao definicao = new Funcao(id, tipo);
+				if(semanticAnalyzer.getDefinicoes().contains(definicao)){
+					throw new SemanticException("Variável "+id+" foi definida mais de uma vez");
+				} else {
+					semanticAnalyzer.getDefinicoes().add(definicao);
+					node.doChildAction(3, definicao);
+					node.doChildAction(5, null);
+					node.doChildAction(7, null);
+				}
+				
+				
 			}
 		});
+		
+		/**
+		 * separa_escopo
+		 */
 		
 		separa_escopo.addProduction(executa.and(abre_parenteses).and(fecha_parenteses).and(abre_chaves).and(escopo_funcao).and(fecha_chaves).and(separa_escopo), new SemanticAction() {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
-				NonLeaf escopo_funcao = (NonLeaf)node.getChildren().get(4);
-				NonLeaf separa_escopo = (NonLeaf)node.getChildren().get(6);
-				return "public static void main(String args[]){"+escopo_funcao.getProduction().getSemanticAction().writeJava(escopo_funcao)+"}"+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
+				String escopo_funcao = node.getWriteJava(4);
+				String separa_escopo = node.getWriteJava(6);
+				return "public static void main(String args[]){\n"+escopo_funcao+"\n}"+separa_escopo;
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				Tipo tipoExecuta = new Tipo("executa");
-				Funcao executa = new Funcao("executa", tipoExecuta);
-				NonLeaf assinatura = (NonLeaf)node.getChildren().get(2);
-				assinatura.getProduction().getSemanticAction().doAction(assinatura, executa);
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				if(semanticAnalyzer.isExistsExecuta()){
+					throw new SemanticException("método executa duplicado!");
+				} else {
+					semanticAnalyzer.setExistsExecuta(true);
+				}
+				node.doChildAction(4, null);
+				node.doChildAction(6, null);
+				
 			}
 		});
 		separa_escopo.addProduction(INTEIRO.and(ID).and(declara).and(separa_escopo), new SemanticAction() {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
-				Leaf id = (Leaf)node.getChildren().get(1);
-				NonLeaf declara = (NonLeaf)node.getChildren().get(2);
-				NonLeaf separa_escopo = (NonLeaf)node.getChildren().get(3);
-				return "static int "+id.getToken().getExpression()+declara.getProduction().getSemanticAction().writeJava(declara)
-						+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
+				String id = node.getTokenExpression(1);
+				String declara = node.getWriteJava(2);
+				String separa_escopo = node.getWriteJava(3);
+				return "static int "+id+declara+separa_escopo;
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
 				Tipo tipo = new Tipo("inteiro");
-				List<Object> list = new ArrayList<>();
-				list.add(tipo);
-				list.add(node.getChildren().get(1));
-				NonLeaf declara = (NonLeaf)node.getChildren().get(2);
-				declara.getProduction().getSemanticAction().doAction(declara, list);
+				String id = node.getTokenExpression(1);
+				Definicao definicao = new Definicao(id, tipo);
+				if(semanticAnalyzer.getDefinicoes().contains(definicao)){
+					throw new SemanticException("Variável "+id+" foi definida mais de uma vez");
+				} else {
+					semanticAnalyzer.getDefinicoes().add(definicao);
+					node.doChildAction(2, definicao);
+					node.doChildAction(3, null);
+				}
+				
+				
 			}
 		});
 		separa_escopo.addProduction(BOOLEANO.and(ID).and(declara).and(separa_escopo), new SemanticAction() {
@@ -266,13 +306,19 @@ public class SemanticAnalyzerTest {
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
 				Tipo tipo = new Tipo("booleano");
-				List<Object> list = new ArrayList<>();
-				list.add(tipo);
-				list.add(node.getChildren().get(1));
-				NonLeaf declara = (NonLeaf)node.getChildren().get(2);
-				declara.getProduction().getSemanticAction().doAction(declara, list);
+				String id = node.getTokenExpression(1);
+				Definicao definicao = new Definicao(id, tipo);
+				if(semanticAnalyzer.getDefinicoes().contains(definicao)){
+					throw new SemanticException("Variável "+id+" foi definida mais de uma vez");
+				} else {
+					semanticAnalyzer.getDefinicoes().add(definicao);
+					node.doChildAction(2, definicao);
+					node.doChildAction(3, null);
+				}
+				
+				
 			}
 		});
 		separa_escopo.addProduction(VAZIO.and(ID).and(abre_parenteses).and(assinatura).and(abre_chaves).and(escopo_funcao).and(fecha_chaves).and(separa_escopo), new SemanticAction() {
@@ -286,18 +332,26 @@ public class SemanticAnalyzerTest {
 				Tipo tipo = new Tipo("vazio");
 				Funcao funcao = new Funcao(id.getToken().getExpression(), tipo);
 				semanticAnalyzer.getDefinicoes().add(funcao);
-				return "static void "+id.getToken().getExpression()+"("+assinatura.getProduction().getSemanticAction().writeJava(assinatura)+"{"
-						+escopo_funcao.getProduction().getSemanticAction().writeJava(escopo_funcao)+"}"
+				return "static void "+id.getToken().getExpression()+"("+assinatura.getProduction().getSemanticAction().writeJava(assinatura)+"{\n"
+						+escopo_funcao.getProduction().getSemanticAction().writeJava(escopo_funcao)+"\n}\n"
 						+separa_escopo.getProduction().getSemanticAction().writeJava(separa_escopo);
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				Leaf id = (Leaf)node.getChildren().get(1);
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
 				Tipo tipo = new Tipo("vazio");
-				Funcao funcao = new Funcao(id.getToken().getExpression(), tipo);
-				NonLeaf assinatura = (NonLeaf)node.getChildren().get(2);
-				assinatura.getProduction().getSemanticAction().doAction(assinatura, funcao);
+				String id = node.getTokenExpression(1);
+				Funcao definicao = new Funcao(id, tipo);
+				if(semanticAnalyzer.getDefinicoes().contains(definicao)){
+					throw new SemanticException("Variável "+id+" foi definida mais de uma vez");
+				} else {
+					semanticAnalyzer.getDefinicoes().add(definicao);
+					node.doChildAction(3, definicao);
+					node.doChildAction(5, null);
+					node.doChildAction(7, null);
+				}
+				
+				
 			}
 		});
 		
@@ -321,13 +375,15 @@ public class SemanticAnalyzerTest {
 			public String writeJava(NonLeaf node) {
 				String assinatura = ((NonLeaf)node.getChildren().get(1)).getProduction().getSemanticAction().writeJava((NonLeaf)node.getChildren().get(1));
 				String escopo_funcao = ((NonLeaf)node.getChildren().get(3)).getProduction().getSemanticAction().writeJava((NonLeaf)node.getChildren().get(3));
-				return "("+assinatura+"{\n"+"\t"+escopo_funcao+"\n}";
+				return "("+assinatura+"{\n"+"\t"+escopo_funcao+"\n}\n";
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				Definicao definicao = (Definicao)object;
+				Funcao funcao = new Funcao(definicao.getVariavel(), definicao.getTipo());				
+				node.doChildAction(1, funcao);
+				node.doChildAction(3, null);				
 			}
 		});
 		declara.addProduction(PONTOVIRGULA, new SemanticAction() {
@@ -339,7 +395,6 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) {
-				
 				
 			}
 		});
@@ -354,9 +409,13 @@ public class SemanticAnalyzerTest {
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				//faz o cast do objeto passado para funcao
+				Funcao funcao = (Funcao)object;
+				//cria o parametro e o adiciona na lista de parametros da funcao
+				Parametro parametro = new Parametro(new Definicao(node.getTokenExpression(1), new Tipo("inteiro")));
+				funcao.getParametros().add(parametro);
+				node.doChildAction(2, funcao);
 			}
 		});
 		parametros.addProduction(BOOLEANO.and(ID).and(separa_parametros), new SemanticAction() {
@@ -369,9 +428,13 @@ public class SemanticAnalyzerTest {
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				//faz o cast do objeto passado para funcao
+				Funcao funcao = (Funcao)object;
+				//cria o parametro e o adiciona na lista de parametros da funcao
+				Parametro parametro = new Parametro(new Definicao(node.getTokenExpression(1), new Tipo("booleano")));
+				funcao.getParametros().add(parametro);
+				node.doChildAction(2, funcao);
 			}
 		});
 		
@@ -410,7 +473,7 @@ public class SemanticAnalyzerTest {
 			public String writeJava(NonLeaf node) {
 				String id = node.getTokenExpression(1);
 				String separa_escopo_funcao = node.getWriteJava(3);
-				return "int "+id+";"+"\n\t"+separa_escopo_funcao;
+				return "\tint "+id+";"+"\n\t"+separa_escopo_funcao;
 			}
 			
 			@Override
@@ -2248,8 +2311,9 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 		
 		try {
 			SyntaxNode root = syntaxAnalyzer.parse();
-			System.out.println(root);
+//			System.out.println(root);
 			SemanticAction startAction = ((NonLeaf)root).getProduction().getSemanticAction();
+			startAction.doAction((NonLeaf)root, null);
 			String out = "public class Program{\n";
 			out = out + startAction.writeJava((NonLeaf)root)+"\n}";
 			System.out.println(out);
@@ -2260,6 +2324,8 @@ escopo_loop.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_lo
 		} catch (NonTerminalEmpty e) {
 			System.out.println(e.getMessage());
 		} catch (LexicalException e){
+			System.out.println(e.getMessage());
+		} catch (SemanticException e) {
 			System.out.println(e.getMessage());
 		}
 	}

@@ -3,6 +3,8 @@ package edu.br.ufrpe.uag.compiler.model.syntax;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.br.ufrpe.uag.compiler.SemanticException;
+
 public class NonLeaf extends SyntaxNode{
 	private Production production;
 	private List<SyntaxNode> children;
@@ -23,15 +25,16 @@ public class NonLeaf extends SyntaxNode{
 	
 	public String getWriteJava(int position){
 		NonLeaf child = (NonLeaf)this.getChildren().get(position);
-		if(child.getProduction() != null){
-			return child.getProduction().getSemanticAction().writeJava(child);
-		} else {
-			return "";
-		}
+		return child.getProduction().getSemanticAction().writeJava(child);
 	}
 	
 	public String getTokenExpression(int position){
 		return ((Leaf)this.getChildren().get(position)).getToken().getExpression();
+	}
+	
+	public void doChildAction(int childPosition, Object object) throws SemanticException{
+		NonLeaf nonLeaf = (NonLeaf)this.getChildren().get(childPosition);
+		nonLeaf.getProduction().getSemanticAction().doAction(nonLeaf, object);
 	}
 	
 	public boolean add(SyntaxNode node){

@@ -4,18 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.br.ufrpe.uag.compiler.model.semantic.Definicao;
-import edu.br.ufrpe.uag.compiler.model.semantic.Funcao;
 import edu.br.ufrpe.uag.compiler.model.syntax.SyntaxTree;
 
 public class SemanticAnalyzer {
 	private SyntaxTree syntaxTree;
 	
 	private List<Definicao> definicoes;
-	private Funcao ultimaFuncao;
+	private boolean existsExecuta;
 
 	public SemanticAnalyzer(){
 		this.definicoes = new ArrayList<Definicao>();
-		this.ultimaFuncao = null;
+		this.existsExecuta = false;
 	}
 
 	public List<Definicao> getDefinicoes() {
@@ -26,11 +25,19 @@ public class SemanticAnalyzer {
 		this.definicoes = definicoes;
 	}
 
-	public Funcao getUltimaFuncao() {
-		return ultimaFuncao;
+	public SyntaxTree getSyntaxTree() {
+		return syntaxTree;
 	}
 
-	public void setUltimaFuncao(Funcao ultimaFuncao) {
-		this.ultimaFuncao = ultimaFuncao;
+	public void setSyntaxTree(SyntaxTree syntaxTree) {
+		this.syntaxTree = syntaxTree;
+	}
+
+	public boolean isExistsExecuta() {
+		return existsExecuta;
+	}
+
+	public void setExistsExecuta(boolean existsExecuta) {
+		this.existsExecuta = existsExecuta;
 	}
 }

@@ -35,9 +35,12 @@ public class SyntaxAnalyzer {
 		Token token = lexicalAnalyzer.getNextToken();
 		SyntaxStack stack = new SyntaxStack();
 		stack.add(nonTerminals.get(0));
+		//enquanto a pilha tiver conteudo
 		while (stack.size() > 0) {
+			//se ainda estiver consumindo tokens
 			if (token != null) {
 				AntTerminal a = stack.getLast();
+				//se o topo da pilha for um terminal
 				if (a instanceof Terminal) {
 					Terminal t2 = (Terminal) a;
 					if (token.equals(t2)) {
@@ -52,13 +55,16 @@ public class SyntaxAnalyzer {
 						throw new SyntaxException(t2, lexicalAnalyzer.getRow(),
 								token);
 					}
+					//se o topo da pilha for um NonTerminal
 				} else {
 					NonTerminal n = (NonTerminal) a;
 					if (n.getProductions().size() == 0) {
 						throw new NonTerminalEmpty(n);
 					}
 					p = n.getProduction(token);
+					//se não existir uma producao com o token no inicio
 					if (p == null) {
+						//se o NonTerminal possuir uma produção para vazio(blank)
 						if (n.haveBlank()) {
 							// token = lexicalAnalyzer.getNextToken();
 							p = n.getProduction(Terminal.BLANK);
@@ -77,11 +83,13 @@ public class SyntaxAnalyzer {
 
 							stack.pop();
 							continue;
+							//caso o NonTerminal não possua producao para vazio
 						} else {
 							throw new TerminalNotFoundException(n,
 									lexicalAnalyzer.getRow(), token);
 						}
 					}
+					//tratando quando o current for o root
 					if (current.getProduction() == null) {
 						current.setProduction(p);
 					} else {
@@ -115,13 +123,18 @@ public class SyntaxAnalyzer {
 							"empty")));
 					stack.pop();
 				} else {
+					System.out.println(current.getNonTerminal().getName());
 					throw new TerminalNotFoundException(
 							current.getNonTerminal(), lexicalAnalyzer.getRow(),
 							new Token(Terminal.EOF, "$"));
 				}
 			}
 		}
-		return root;
+		if(token == null){
+			return root;
+		} else {
+			throw new SyntaxException(token, lexicalAnalyzer.getRow(), token);
+		}
 	}
 
 	public boolean addNonTerminal(NonTerminal n) {

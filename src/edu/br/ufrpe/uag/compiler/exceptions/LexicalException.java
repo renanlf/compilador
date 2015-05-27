@@ -11,7 +11,7 @@ public class LexicalException extends RuntimeException {
 	private final String sequence;
 	
 	public LexicalException(int row, String sequenceRow){
-		super("Erro na linha "+(row+1)+" com o(s) caracter(es): "+sequenceRow.split(" ")[0]);
+		super("Lexical Exception: Erro na linha "+(row+1)+" com o(s) caracter(es): "+sequenceRow.split(" ")[0]);
 		this.row = row;
 		this.sequence = sequenceRow;
 	}

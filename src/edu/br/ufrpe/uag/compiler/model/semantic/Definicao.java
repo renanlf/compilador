@@ -20,4 +20,9 @@ public class Definicao {
 	public void setTipo(Tipo tipo) {
 		this.tipo = tipo;
 	}
+	
+	public boolean equals(Object o){
+		Definicao d = (Definicao)o;
+		return this.variavel.equals(d.variavel);
+	}
 }
