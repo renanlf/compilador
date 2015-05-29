@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Funcao extends Definicao{
 	private List<Parametro> parametros;
+	private int position = 0;
 	
 	public Funcao(String variavel, Tipo tipo){
 		super(variavel, tipo);
@@ -14,6 +15,18 @@ public class Funcao extends Definicao{
 	public Funcao(String variavel, Tipo tipo, List<Parametro> parametros) {
 		super(variavel, tipo);
 		this.parametros = parametros;
+	}
+	
+	public Parametro getParametro(){
+		return parametros.get(position);
+	}
+	
+	public void updatePosition(){
+		if(position == parametros.size()){
+			position = -1;
+		} else {
+			position += 1;
+		}
 	}
 
 	public List<Parametro> getParametros() {

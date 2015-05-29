@@ -3,7 +3,7 @@ package edu.br.ufrpe.uag.compiler.model.syntax;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.br.ufrpe.uag.compiler.SemanticException;
+import edu.br.ufrpe.uag.compiler.exceptions.SemanticException;
 
 public class NonLeaf extends SyntaxNode{
 	private Production production;

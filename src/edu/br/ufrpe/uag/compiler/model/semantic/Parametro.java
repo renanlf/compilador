@@ -1,18 +1,9 @@
 package edu.br.ufrpe.uag.compiler.model.semantic;
 
-public class Parametro {
-	private Definicao definicao;
+public class Parametro extends Definicao{
 
-	public Parametro(Definicao definicao) {
-		super();
-		this.definicao = definicao;
-	}
-
-	public Definicao getDefinicao() {
-		return definicao;
-	}
-
-	public void setDefinicao(Definicao definicao) {
-		this.definicao = definicao;
+	public Parametro(String variavel, Tipo tipo) {
+		super(variavel, tipo);
+		// TODO Auto-generated constructor stub
 	}
 }

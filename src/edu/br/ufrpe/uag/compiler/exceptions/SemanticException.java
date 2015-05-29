@@ -1,4 +1,4 @@
-package edu.br.ufrpe.uag.compiler;
+package edu.br.ufrpe.uag.compiler.exceptions;
 
 public class SemanticException extends Exception {
 	/**

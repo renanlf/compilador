@@ -1,6 +1,6 @@
 package edu.br.ufrpe.uag.compiler.model.semantic;
 
-import edu.br.ufrpe.uag.compiler.SemanticException;
+import edu.br.ufrpe.uag.compiler.exceptions.SemanticException;
 import edu.br.ufrpe.uag.compiler.model.syntax.NonLeaf;
 
 public interface SemanticAction {
