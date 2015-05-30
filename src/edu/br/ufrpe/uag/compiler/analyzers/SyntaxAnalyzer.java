@@ -39,6 +39,7 @@ public class SyntaxAnalyzer {
 		while (stack.size() > 0) {
 			//se ainda estiver consumindo tokens
 			if (token != null) {
+//				System.out.println(token);
 				AntTerminal a = stack.getLast();
 				//se o topo da pilha for um terminal
 				if (a instanceof Terminal) {
