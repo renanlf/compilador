@@ -23,6 +23,7 @@ public class SemanticAnalyzerTest {
 
 	@Test
 	public void test() {
+		
 		//Terminais
 		Terminal executa = new Terminal (0, "executa", "EXECUTA");
 		Terminal abre_parenteses = new Terminal (1, "\\(", "abre_parenteses");
@@ -58,8 +59,8 @@ public class SemanticAnalyzerTest {
 		Terminal ID = new Terminal (31, "[a-z][a-zA-Z0-9]*", "ID");
 		
 		LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(
-				  "booleano a;"
-				+ "inteiro multiplica(inteiro a, inteiro b){\n"
+				  "inteiro multiplica(inteiro a, inteiro b){\n"
+				+ "		inteiro c;"
 				+ "		enquanto(b > 1){\n"
 				+ "			a <- a + a;"
 				+ "			c <- b - 1;"
@@ -72,7 +73,8 @@ public class SemanticAnalyzerTest {
 //				+ "		imprima(multiplica(3,2));"
 //				+ "\n}"
 				+ "executa(){\n"
-				+ "		imprima(multiplica(3,2));"
+				+ "		inteiro b;"
+				+ "		imprima(multiplica(3,2,1));"
 				+ "\n}");
 		//Adicionando terminais ao analisador léxico
 		lexicalAnalyzer.addTerminal(executa);
@@ -149,12 +151,13 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				Funcao executa = new Funcao("executa", null);
 				if(semanticAnalyzer.isExistsExecuta()){
 					throw new SemanticException("método executa duplicado!");
 				} else {
 					semanticAnalyzer.setExistsExecuta(true);
 				}
-				node.doChildAction(4, object);
+				node.doChildAction(4, executa);
 				node.doChildAction(6, object);
 				
 			}
@@ -261,12 +264,13 @@ public class SemanticAnalyzerTest {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				Funcao executa = new Funcao("executa", null);
 				if(semanticAnalyzer.isExistsExecuta()){
 					throw new SemanticException("método executa duplicado!");
 				} else {
 					semanticAnalyzer.setExistsExecuta(true);
 				}
-				node.doChildAction(4, object);
+				node.doChildAction(4, executa);
 				node.doChildAction(6, object);
 				
 			}
@@ -547,8 +551,9 @@ public class SemanticAnalyzerTest {
 						} else {
 							throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
 						}
+					} else {
+						throw new SemanticException("Identificador "+id+" não declarado");
 					}
-					throw new SemanticException("Identificador "+id+" não declarado");
 				}
 			}
 		});
@@ -705,7 +710,7 @@ public class SemanticAnalyzerTest {
 				if(semanticAnalyzer.getDefinicoes().contains(definicaoTest)){
 					Definicao definicao = semanticAnalyzer.getDefinicoes().get(semanticAnalyzer.getDefinicoes().indexOf(definicaoTest));
 					if(definicao.getTipo().getTipoNome().equals("inteiro")){
-						node.doChildAction(2, definicao);
+						node.doChildAction(2, object);
 						node.doChildAction(4, object);
 					} else {
 						throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
@@ -719,8 +724,9 @@ public class SemanticAnalyzerTest {
 						} else {
 							throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
 						}
+					} else {
+						throw new SemanticException("Identificador "+id+" não declarado");
 					}
-					throw new SemanticException("Identificador "+id+" não declarado");
 				}
 			}
 		});
@@ -852,8 +858,9 @@ public class SemanticAnalyzerTest {
 						} else {
 							throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
 						}
+					} else {
+						throw new SemanticException("Identificador "+id+" não declarado");
 					}
-					throw new SemanticException("Identificador "+id+" não declarado");
 				}
 			}
 		});
@@ -980,8 +987,9 @@ public class SemanticAnalyzerTest {
 						} else {
 							throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
 						}
+					} else {
+						throw new SemanticException("Identificador "+id+" não declarado");
 					}
-					throw new SemanticException("Identificador "+id+" não declarado");
 				}
 			}
 		});
@@ -1077,8 +1085,9 @@ public class SemanticAnalyzerTest {
 						} else {
 							throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
 						}
+					} else {
+						throw new SemanticException("Identificador "+id+" não declarado");
 					}
-					throw new SemanticException("Identificador "+id+" não declarado");
 				}
 			}
 		});
@@ -1338,7 +1347,7 @@ public class SemanticAnalyzerTest {
 				if(semanticAnalyzer.getDefinicoes().contains(definicaoTest)){
 					Definicao definicao = semanticAnalyzer.getDefinicoes().get(semanticAnalyzer.getDefinicoes().indexOf(definicaoTest));
 					if(definicao.getTipo().getTipoNome().equals("inteiro")){
-						node.doChildAction(2, definicao);
+						node.doChildAction(2, object);
 						node.doChildAction(4, object);
 					} else {
 						throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
@@ -1347,13 +1356,14 @@ public class SemanticAnalyzerTest {
 					if(funcao.getParametros().contains(definicaoTest)){
 						Definicao definicao = funcao.getParametros().get(funcao.getParametros().indexOf(definicaoTest));
 						if(definicao.getTipo().getTipoNome().equals("inteiro")){
-							node.doChildAction(2, definicao);
+							node.doChildAction(2, object);
 							node.doChildAction(4, object);
 						} else {
 							throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
 						}
+					} else {
+						throw new SemanticException("Identificador "+id+" não declarado");
 					}
-					throw new SemanticException("Identificador "+id+" não declarado");
 				}
 			}
 		});
@@ -1538,7 +1548,7 @@ public class SemanticAnalyzerTest {
 				if(semanticAnalyzer.getDefinicoes().contains(definicaoTest)){
 					Definicao definicao = semanticAnalyzer.getDefinicoes().get(semanticAnalyzer.getDefinicoes().indexOf(definicaoTest));
 					if(definicao.getTipo().getTipoNome().equals("inteiro")){
-						node.doChildAction(2, definicao);
+						node.doChildAction(2, object);
 						node.doChildAction(4, object);
 					} else {
 						throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
@@ -1552,8 +1562,9 @@ public class SemanticAnalyzerTest {
 						} else {
 							throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
 						}
+					} else {
+						throw new SemanticException("Identificador "+id+" não declarado");
 					}
-					throw new SemanticException("Identificador "+id+" não declarado");
 				}
 			}
 		});
