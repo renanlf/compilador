@@ -3,7 +3,7 @@ package edu.br.ufrpe.uag.compiler.analyzers;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.br.ufrpe.uag.compiler.exceptions.NonTerminalEmpty;
+import edu.br.ufrpe.uag.compiler.exceptions.NonTerminalEmptyException;
 import edu.br.ufrpe.uag.compiler.exceptions.SyntaxException;
 import edu.br.ufrpe.uag.compiler.exceptions.TerminalNotFoundException;
 import edu.br.ufrpe.uag.compiler.model.AntTerminal;
@@ -27,7 +27,7 @@ public class SyntaxAnalyzer {
 	}
 
 	public SyntaxNode parse() throws SyntaxException,
-			TerminalNotFoundException, NonTerminalEmpty {
+			TerminalNotFoundException, NonTerminalEmptyException {
 
 		NonLeaf root = new NonLeaf(null, nonTerminals.get(0));
 		NonLeaf current = root;
@@ -60,7 +60,7 @@ public class SyntaxAnalyzer {
 				} else {
 					NonTerminal n = (NonTerminal) a;
 					if (n.getProductions().size() == 0) {
-						throw new NonTerminalEmpty(n);
+						throw new NonTerminalEmptyException(n);
 					}
 					p = n.getProduction(token);
 					//se não existir uma producao com o token no inicio

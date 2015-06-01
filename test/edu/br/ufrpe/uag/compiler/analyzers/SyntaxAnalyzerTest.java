@@ -3,7 +3,7 @@ package edu.br.ufrpe.uag.compiler.analyzers;
 import org.junit.Test;
 
 import edu.br.ufrpe.uag.compiler.exceptions.LexicalException;
-import edu.br.ufrpe.uag.compiler.exceptions.NonTerminalEmpty;
+import edu.br.ufrpe.uag.compiler.exceptions.NonTerminalEmptyException;
 import edu.br.ufrpe.uag.compiler.exceptions.SyntaxException;
 import edu.br.ufrpe.uag.compiler.exceptions.TerminalNotFoundException;
 import edu.br.ufrpe.uag.compiler.model.lexical.Terminal;
@@ -319,7 +319,7 @@ public class SyntaxAnalyzerTest {
 			System.out.println(e.getMessage());
 		} catch (TerminalNotFoundException e) {
 			System.out.println(e.getOutput());
-		} catch (NonTerminalEmpty e) {
+		} catch (NonTerminalEmptyException e) {
 			System.out.println(e.getMessage());
 		} catch (LexicalException e){
 			System.out.println(e.getMessage());

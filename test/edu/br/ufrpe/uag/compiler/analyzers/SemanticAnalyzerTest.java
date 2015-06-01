@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import edu.br.ufrpe.uag.compiler.exceptions.DuplicateDefinicao;
 import edu.br.ufrpe.uag.compiler.exceptions.LexicalException;
-import edu.br.ufrpe.uag.compiler.exceptions.NonTerminalEmpty;
+import edu.br.ufrpe.uag.compiler.exceptions.NonTerminalEmptyException;
 import edu.br.ufrpe.uag.compiler.exceptions.SemanticException;
 import edu.br.ufrpe.uag.compiler.exceptions.SyntaxException;
 import edu.br.ufrpe.uag.compiler.exceptions.TerminalNotFoundException;
@@ -2766,7 +2766,7 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			System.out.println(e.getMessage());
 		} catch (TerminalNotFoundException e) {
 			System.out.println(e.getOutput());
-		} catch (NonTerminalEmpty e) {
+		} catch (NonTerminalEmptyException e) {
 			System.out.println(e.getMessage());
 		} catch (LexicalException e){
 			System.out.println(e.getMessage());
