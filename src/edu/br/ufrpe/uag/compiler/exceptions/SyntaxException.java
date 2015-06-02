@@ -10,6 +10,6 @@ public class SyntaxException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	public SyntaxException(Terminal t, int i, Token token){
-		super("Era experado um token do tipo "+t.getName()+" na linha "+(i+1)+" mas foi encontrado \""+token.getExpression()+"\"");
+		super("SyntaxException: Era experado um token do tipo "+t.getName()+" na linha "+(i+1)+" mas foi encontrado \""+token.getExpression()+"\"");
 	}
 }

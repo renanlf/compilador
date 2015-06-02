@@ -14,7 +14,7 @@ public class TerminalNotFoundException extends Exception {
 	private static final long serialVersionUID = 1L;
 	
 	public TerminalNotFoundException(NonTerminal n, int i, Token token){
-		String o = "Era esperado:";
+		String o = "SyntaxException: Era esperado:";
 		for(Production p : n.getProductions()){
 			Terminal first = (Terminal)p.getAntTerminals().get(0);
 			o = o+" "+first.getName();

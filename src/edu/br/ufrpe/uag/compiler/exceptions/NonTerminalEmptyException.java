@@ -9,6 +9,6 @@ public class NonTerminalEmptyException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	public NonTerminalEmptyException(NonTerminal n){
-		super("NonTerminal "+n.getName()+" não possui produções!");
+		super("SyntaxException: NonTerminal "+n.getName()+" não possui produções!");
 	}
 }

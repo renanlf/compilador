@@ -1,7 +1,5 @@
 package edu.br.ufrpe.uag.compiler.analyzers;
 
-import java.util.List;
-
 import org.junit.Test;
 
 import edu.br.ufrpe.uag.compiler.exceptions.DuplicateDefinicao;
