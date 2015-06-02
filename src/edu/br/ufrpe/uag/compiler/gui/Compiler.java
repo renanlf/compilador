@@ -465,6 +465,9 @@ public class Compiler {
 				semanticAnalyzer.getDefinicoes().add(funcao);
 				node.doChildAction(1, funcao);
 				node.doChildAction(3, funcao);
+				if(!funcao.isHaveRetorno()){
+					throw new SemanticException("Função "+funcao.getVariavel()+" sem retorno");
+				}
 			}
 		});
 		declara.addProduction(PONTOVIRGULA, new SemanticAction() {
@@ -692,6 +695,8 @@ public class Compiler {
 					@Override
 					public void doAction(NonLeaf node, Object object)
 							throws SemanticException {
+						Funcao funcao = (Funcao) object;
+						funcao.setHaveRetorno(true);
 						node.doChildAction(2, object);
 						node.doChildAction(5, object);
 					}
@@ -918,6 +923,8 @@ public class Compiler {
 					@Override
 					public void doAction(NonLeaf node, Object object)
 							throws SemanticException {
+						Funcao funcao = (Funcao) object;
+						funcao.setHaveRetorno(true);
 						node.doChildAction(2, object);
 						node.doChildAction(5, object);
 					}
@@ -3268,13 +3275,13 @@ public class Compiler {
 									.getDefinicoes().get(
 											semanticAnalyzer.getDefinicoes()
 													.indexOf(definicaoTest));
-							if (definicao.getTipo().getTipoNome()
-									.equals("inteiro")) {
+//							if (definicao.getTipo().getTipoNome()
+//									.equals("inteiro")) {
 								node.doChildAction(1, definicao);
-							} else {
-								throw new SemanticException("Tipo de " + id
-										+ " deveria ser inteiro");
-							}
+//							} else {
+//								throw new SemanticException("Tipo de " + id
+//										+ " deveria ser inteiro");
+//							}
 						} else {
 							if (funcao.getParametros().contains(definicaoTest)) {
 								Definicao definicao = funcao.getParametros()

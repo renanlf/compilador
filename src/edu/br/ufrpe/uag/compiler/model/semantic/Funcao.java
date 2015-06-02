@@ -6,6 +6,7 @@ import java.util.List;
 public class Funcao extends Definicao{
 	private List<Parametro> parametros;
 	private int position = 0;
+	private boolean haveRetorno = false;
 	
 	public Funcao(String variavel, Tipo tipo){
 		super(variavel, tipo);
@@ -48,6 +49,15 @@ public class Funcao extends Definicao{
 	public void setPosition(int position) {
 		this.position = position;
 	}
+
+	public boolean isHaveRetorno() {
+		return haveRetorno;
+	}
+
+	public void setHaveRetorno(boolean haveRetorno) {
+		this.haveRetorno = haveRetorno;
+	}
+
 
 	
 }
