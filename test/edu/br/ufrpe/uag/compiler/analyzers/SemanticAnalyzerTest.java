@@ -71,13 +71,9 @@ public class SemanticAnalyzerTest {
 				+ "		c <- b + 1;\n"
 				+ "		retorne(a);\n"
 				+ "\n}"
-//				+ "inteiro multiplica;\n"
-//				+ "executa(){\n"
-//				+ "		imprima(multiplica(3,2));"
-//				+ "\n}"
 				+ "executa(){\n"
 				+ "		inteiro b;"
-				+ "		imprima(multiplica(3,2,1));"
+				+ "		imprima(multiplica(3,2));"
 				+ "\n}");
 		//Adicionando terminais ao analisador léxico
 		lexicalAnalyzer.addTerminal(executa);
@@ -987,7 +983,7 @@ public class SemanticAnalyzerTest {
 					if(funcao.getParametros().contains(definicaoTest)){
 						Definicao definicao = funcao.getParametros().get(funcao.getParametros().indexOf(definicaoTest));
 						if(definicao.getTipo().getTipoNome().equals("inteiro")){
-							node.doChildAction(1, definicao);
+							node.doChildAction(1, funcao);
 						} else {
 							throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
 						}
@@ -1126,6 +1122,8 @@ public class SemanticAnalyzerTest {
 					if(parametro.getTipo().getTipoNome().equals("inteiro")){
 						funcao.updatePosition();
 						node.doChildAction(1, funcao);
+						//após verificar os parametros para esta chamada da função coloque no início as posições do parâmetro
+						funcao.setPosition(0);
 					} else {
 						throw new SemanticException("Era experado um argumento do tipo "+parametro.getTipo().getTipoNome());
 					}
@@ -1210,7 +1208,7 @@ public class SemanticAnalyzerTest {
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
 				Funcao funcao = (Funcao)object;
 				if(funcao.getPosition() < funcao.getParametros().size()){
-
+					
 					Parametro parametro = funcao.getParametro();
 					if(parametro.getTipo().getTipoNome().equals("inteiro")){
 						funcao.updatePosition();
@@ -1697,7 +1695,7 @@ public class SemanticAnalyzerTest {
 		 * escopo_condicional
 		 */
 		
-escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional), new SemanticAction() {
+		escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_escopo_condicional), new SemanticAction() {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
@@ -2130,9 +2128,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(2, object);
+				node.doChildAction(3, object);
 			}
 		});
 		
@@ -2146,9 +2144,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});
 		outra_operacao.addProduction(MENOS.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
@@ -2161,9 +2159,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});		
 		outra_operacao.addProduction(VEZES.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
@@ -2176,9 +2174,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});
 		outra_operacao.addProduction(DIVIDIDO.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
@@ -2191,9 +2189,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});
 		outra_operacao.addProduction(Terminal.BLANK, new SemanticAction() {
@@ -2223,7 +2221,6 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
 				Definicao definicaoTest = (Definicao)object;
 				if(semanticAnalyzer.getDefinicoes().contains(definicaoTest)){
-					List<Definicao> definicoes = semanticAnalyzer.getDefinicoes();
 					Definicao definicao = semanticAnalyzer.getDefinicoes().get(semanticAnalyzer.getDefinicoes().indexOf(definicaoTest));
 					Funcao funcao = (Funcao) definicao;
 
@@ -2257,9 +2254,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});
 		chamada_comparacao_operacao.addProduction(MENOS.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
@@ -2272,9 +2269,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});
 		chamada_comparacao_operacao.addProduction(VEZES.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
@@ -2287,9 +2284,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});
 		chamada_comparacao_operacao.addProduction(DIVIDIDO.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
@@ -2302,9 +2299,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});
 		chamada_comparacao_operacao.addProduction(MENORQ.and(ID_chamada_NUMERO), new SemanticAction() {
@@ -2316,9 +2313,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		chamada_comparacao_operacao.addProduction(MAIORQ.and(ID_chamada_NUMERO), new SemanticAction() {
@@ -2330,9 +2326,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		chamada_comparacao_operacao.addProduction(MENORQIGUAL.and(ID_chamada_NUMERO), new SemanticAction() {
@@ -2344,9 +2339,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		chamada_comparacao_operacao.addProduction(MAIORQIGUAL.and(ID_chamada_NUMERO), new SemanticAction() {
@@ -2358,9 +2352,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		chamada_comparacao_operacao.addProduction(IGUAL.and(ID_chamada_NUMERO), new SemanticAction() {
@@ -2372,9 +2365,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		chamada_comparacao_operacao.addProduction(DIFERENTE.and(ID_chamada_NUMERO), new SemanticAction() {
@@ -2386,9 +2378,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		
@@ -2402,9 +2393,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});
 		separa.addProduction(MENOS.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
@@ -2417,9 +2408,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});
 		separa.addProduction(VEZES.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
@@ -2432,9 +2423,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});
 		separa.addProduction(DIVIDIDO.and(ID_chamada_NUMERO).and(outra_operacao), new SemanticAction() {
@@ -2447,9 +2438,9 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});
 		separa.addProduction(MENORQ.and(ID_chamada_NUMERO), new SemanticAction() {
@@ -2461,9 +2452,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		separa.addProduction(MAIORQ.and(ID_chamada_NUMERO), new SemanticAction() {
@@ -2475,9 +2465,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		separa.addProduction(MENORQIGUAL.and(ID_chamada_NUMERO), new SemanticAction() {
@@ -2489,9 +2478,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		separa.addProduction(MAIORQIGUAL.and(ID_chamada_NUMERO), new SemanticAction() {
@@ -2503,9 +2491,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		separa.addProduction(IGUAL.and(ID_chamada_NUMERO), new SemanticAction() {
@@ -2517,9 +2504,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		separa.addProduction(DIFERENTE.and(ID_chamada_NUMERO), new SemanticAction() {
@@ -2531,9 +2517,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				
-				
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		separa.addProduction(Terminal.BLANK, new SemanticAction() {
@@ -2560,8 +2545,29 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			}
 			
 			@Override
-			public void doAction(NonLeaf node, Object object) {
-				//TODO implementar aqui
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				Funcao funcao = (Funcao)object;
+				String id = node.getTokenExpression(0);
+				Definicao definicaoTest = new Definicao(id, new Tipo(""));
+				if(semanticAnalyzer.getDefinicoes().contains(definicaoTest)){
+					Definicao definicao = semanticAnalyzer.getDefinicoes().get(semanticAnalyzer.getDefinicoes().indexOf(definicaoTest));
+					if(definicao.getTipo().getTipoNome().equals("inteiro")){
+						node.doChildAction(1, definicao);
+					} else {
+						throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
+					}
+				} else {
+					if(funcao.getParametros().contains(definicaoTest)){
+						Definicao definicao = funcao.getParametros().get(funcao.getParametros().indexOf(definicaoTest));
+						if(definicao.getTipo().getTipoNome().equals("inteiro")){
+							node.doChildAction(1, definicao);
+						} else {
+							throw new SemanticException("Tipo de "+id+" deveria ser inteiro");
+						}
+					} else {
+						throw new SemanticException("Identificador "+id+" não declarado");
+					}
+				}
 			}
 		});
 		
@@ -2772,8 +2778,8 @@ escopo_condicional.addProduction(INTEIRO.and(ID).and(PONTOVIRGULA).and(separa_es
 			System.out.println(e.getMessage());
 		} catch (SemanticException e) {
 			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
-}
-
+}	

@@ -2,11 +2,13 @@ package edu.br.ufrpe.uag.compiler.analyzers;
 
 public class Program {
 	static int multiplica(int a, int b) {
+		int c;
 		while (b > 1) {
 			a = a + a;
 			b = b - 1;
 
 		}
+		c = b + 1;
 		return (a);
 
 	}

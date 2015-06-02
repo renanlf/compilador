@@ -18,7 +18,11 @@ public class Funcao extends Definicao{
 	}
 	
 	public Parametro getParametro(){
-		return parametros.get(position);
+		if(position < parametros.size()){
+			return parametros.get(position);
+		} else {
+			return null;
+		}
 	}
 	
 	public void updatePosition(){
