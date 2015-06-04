@@ -218,7 +218,7 @@ public class Compiler {
 								.contains(definicao)) {
 							throw new DuplicateDefinicao(id);
 						} else {
-							semanticAnalyzer.getDefinicoes().add(definicao);
+//							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(2, definicao);
 							node.doChildAction(3, object);
 						}
@@ -332,7 +332,7 @@ public class Compiler {
 								.contains(definicao)) {
 							throw new DuplicateDefinicao(id);
 						} else {
-							semanticAnalyzer.getDefinicoes().add(definicao);
+//							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(2, definicao);
 							node.doChildAction(3, object);
 						}
@@ -1055,11 +1055,15 @@ public class Compiler {
 						if (semanticAnalyzer.getDefinicoes().contains(definicaoTest)) {
 							Definicao definicao = semanticAnalyzer.getDefinicoes().get(semanticAnalyzer.getDefinicoes().indexOf(definicaoTest));
 							if (definicao.getTipo().getTipoNome().equals("inteiro")) {
-								node.doChildAction(1, definicao);
+								List<Object> l = new ArrayList<>();
+								l.add(funcao);
+								l.add(definicao);
+								node.doChildAction(1, l);
 							} else {
 								throw new SemanticException("Tipo de " + id
 										+ " não é inteiro");
 							}
+
 						} else {
 							if (funcao.getParametros().contains(definicaoTest)) {
 								Definicao definicao = funcao.getParametros()
@@ -1067,7 +1071,10 @@ public class Compiler {
 												definicaoTest));
 								if (definicao.getTipo().getTipoNome()
 										.equals("inteiro")) {
-									node.doChildAction(1, definicao);
+									List<Object> l = new ArrayList<>();
+									l.add(funcao);
+									l.add(definicao);
+									node.doChildAction(1, l);
 								} else {
 									throw new SemanticException("Tipo de " + id
 											+ " não é inteiro");
@@ -1105,13 +1112,18 @@ public class Compiler {
 					@Override
 					public void doAction(NonLeaf node, Object object)
 							throws SemanticException {
-						node.doChildAction(1, object);
-						Funcao funcao = (Funcao)object;
-						if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-							throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+						List<Object> l = (List<Object>)object;
+						if(l.get(1) instanceof Funcao){
+							Funcao funcao = (Funcao)l.get(1);
+							node.doChildAction(1, object);
+							if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
+								throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+							} else {
+								funcao.setPosition(0);
+								System.out.println("Zerou");
+							}
 						} else {
-							funcao.setPosition(0);
-							System.out.println("Zerou");
+							throw new SemanticException("Era esperada uma função!");
 						}
 					}
 				});
@@ -1344,7 +1356,10 @@ public class Compiler {
 													.indexOf(definicaoTest));
 							if (definicao.getTipo().getTipoNome()
 									.equals("inteiro")) {
-								node.doChildAction(1, definicao);
+								List<Object> l = new ArrayList<>();
+								l.add(funcao);
+								l.add(definicao);
+								node.doChildAction(1, l);
 								node.doChildAction(3, object);
 							} else {
 								throw new SemanticException("Tipo de " + id
@@ -1357,7 +1372,10 @@ public class Compiler {
 												definicaoTest));
 								if (definicao.getTipo().getTipoNome()
 										.equals("inteiro")) {
-									node.doChildAction(1, definicao);
+									List<Object> l = new ArrayList<>();
+									l.add(funcao);
+									l.add(definicao);
+									node.doChildAction(1, l);
 									node.doChildAction(3, object);
 								} else {
 									throw new SemanticException("Tipo de " + id
@@ -1381,12 +1399,12 @@ public class Compiler {
 
 					@Override
 					public void doAction(NonLeaf node, Object object) throws SemanticException {
-						Funcao funcao = (Funcao)object;
-						if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-							throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
-						} else {
-							funcao.setPosition(0);
-						}
+//						Funcao funcao = (Funcao)object;
+//						if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
+//							throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+//						} else {
+//							funcao.setPosition(0);
+//						}
 					}
 				});
 
@@ -1402,12 +1420,13 @@ public class Compiler {
 
 					@Override
 					public void doAction(NonLeaf node, Object object)throws SemanticException {
-						Funcao funcao = (Funcao) object;
+						List<Object> l = (List<Object>)object;
+						Funcao funcao = (Funcao)l.get(1);
 						Parametro parametro = funcao.getParametro();
 						if (funcao.getPosition() < funcao.getParametros().size()) {
 							if (parametro.getTipo().getTipoNome().equals("inteiro")) {
 								funcao.updatePosition();
-								node.doChildAction(1, funcao);
+								node.doChildAction(1, l);
 								// após verificar os parametros para esta
 								// chamada da função coloque no início as
 								// posições do parâmetro
@@ -1442,12 +1461,13 @@ public class Compiler {
 			@Override
 			public void doAction(NonLeaf node, Object object)
 					throws SemanticException {
-				Funcao funcao = (Funcao) object;
+				List<Object> l = (List<Object>)object;
+				Funcao funcao = (Funcao)l.get(1);
 				Parametro parametro = funcao.getParametro();
 				if (funcao.getPosition() < funcao.getParametros().size()) {
 					if (parametro.getTipo().getTipoNome().equals("booleano")) {
 						funcao.updatePosition();
-						node.doChildAction(1, funcao);
+						node.doChildAction(1, l);
 //						if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
 //							throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
 //						} else {
@@ -1486,24 +1506,23 @@ public class Compiler {
 						String id = node.getTokenExpression(0);
 						Definicao definicaoTest = new Definicao(id,
 								new Tipo(""));
-
-						Funcao funcao = (Funcao) object;
+						List<Object> l = (List<Object>)object;
+						Funcao funcaoEscopo = (Funcao)l.get(0);
+						Funcao funcao = (Funcao)l.get(1);
 						if (semanticAnalyzer.getDefinicoes().contains(definicaoTest)) {
 							Definicao definicao = semanticAnalyzer.getDefinicoes().get(semanticAnalyzer.getDefinicoes().indexOf(definicaoTest));
 							Parametro parametro = funcao.getParametro();
 							if (funcao.getPosition() < funcao.getParametros().size()) {
 								if (parametro.getTipo().getTipoNome().equals(definicao.getTipo().getTipoNome())) {
 									funcao.updatePosition();
-									node.doChildAction(1, funcao);
+									node.doChildAction(1, l);
 //									if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
 //										throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
 //									} else {
 //										funcao.setPosition(0);
 //									}
 								} else {
-									throw new SemanticException(
-											"Era experado um argumento do tipo "
-													+ parametro.getTipo()
+									throw new SemanticException("Era experado um argumento do tipo "+ parametro.getTipo()
 															.getTipoNome());
 								}
 							} else {
@@ -1512,13 +1531,13 @@ public class Compiler {
 												+ funcao.getParametros().size());
 							}
 						} else {
-							if (funcao.getParametros().contains(definicaoTest)) {
-								Definicao definicao = funcao.getParametros().get(funcao.getParametros().indexOf(definicaoTest));
+							if (funcaoEscopo.getParametros().contains(definicaoTest)) {
+								Definicao definicao = funcaoEscopo.getParametros().get(funcaoEscopo.getParametros().indexOf(definicaoTest));
 								Parametro parametro = funcao.getParametro();
 								if (funcao.getPosition() < funcao.getParametros().size()) {
 									if (parametro.getTipo().getTipoNome().equals(definicao.getTipo().getTipoNome())) {
 										funcao.updatePosition();
-										node.doChildAction(1, funcao);
+										node.doChildAction(1, l);
 //										if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
 //											throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
 //										} else {
@@ -1556,7 +1575,8 @@ public class Compiler {
 					@Override
 					public void doAction(NonLeaf node, Object object)
 							throws SemanticException {
-						Funcao funcao = (Funcao) object;
+						List<Object> l = (List<Object>)object;
+						Funcao funcao = (Funcao)l.get(1);
 						if (funcao.getPosition() < funcao.getParametros()
 								.size()) {
 
@@ -1564,7 +1584,7 @@ public class Compiler {
 							if (parametro.getTipo().getTipoNome()
 									.equals("inteiro")) {
 								funcao.updatePosition();
-								node.doChildAction(1, funcao);
+								node.doChildAction(1, l);
 							} else {
 								throw new SemanticException(
 										"Era experado um argumento do tipo "
@@ -1596,12 +1616,13 @@ public class Compiler {
 					@Override
 					public void doAction(NonLeaf node, Object object)
 							throws SemanticException {
-						Funcao funcao = (Funcao) object;
+						List<Object> l = (List<Object>)object;
+						Funcao funcao = (Funcao)l.get(1);
 						Parametro parametro = funcao.getParametro();
 						if (funcao.getPosition() < funcao.getParametros().size()) {
 							if (parametro.getTipo().getTipoNome().equals("booleano")) {
 								funcao.updatePosition();
-								node.doChildAction(1, funcao);
+								node.doChildAction(1, l);
 							} else {
 								throw new SemanticException("Era experado um argumento do tipo "
 												+ parametro.getTipo()
@@ -1632,14 +1653,18 @@ public class Compiler {
 							throws SemanticException {
 						String id = node.getTokenExpression(0);
 						Definicao definicaoTest = new Definicao(id,	new Tipo(""));
-						Funcao funcao = (Funcao) object;
+
+						List<Object> l = (List<Object>)object;
+						Funcao funcaoEscopo = (Funcao)l.get(0);
+						Funcao funcao = (Funcao)l.get(1);
+						
 						if (semanticAnalyzer.getDefinicoes().contains(definicaoTest)) {
 							Definicao definicao = semanticAnalyzer.getDefinicoes().get(semanticAnalyzer.getDefinicoes().indexOf(definicaoTest));
 							Parametro parametro = funcao.getParametro();
 							if (funcao.getPosition() < funcao.getParametros().size()) {
 								if (parametro.getTipo().getTipoNome().equals(definicao.getTipo().getTipoNome())) {
 									funcao.updatePosition();
-									node.doChildAction(1, funcao);
+									node.doChildAction(1, l);
 								} else {
 									throw new SemanticException(
 											"Era experado um argumento do tipo "
@@ -1652,13 +1677,13 @@ public class Compiler {
 												+ funcao.getParametros().size());
 							}
 						} else {
-							if (funcao.getParametros().contains(definicaoTest)) {
-								Definicao definicao = funcao.getParametros().get(funcao.getParametros().indexOf(definicaoTest));
+							if (funcaoEscopo.getParametros().contains(definicaoTest)) {
+								Definicao definicao = funcaoEscopo.getParametros().get(funcaoEscopo.getParametros().indexOf(definicaoTest));
 								Parametro parametro = funcao.getParametro();
 								if (funcao.getPosition() < funcao.getParametros().size()) {
 									if (parametro.getTipo().getTipoNome().equals(definicao.getTipo().getTipoNome())) {
 										funcao.updatePosition();
-										node.doChildAction(1, funcao);
+										node.doChildAction(1, l);
 //										if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
 //											throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
 //										} else {
@@ -2746,6 +2771,10 @@ public class Compiler {
 													.indexOf(definicaoTest));
 							if (definicao.getTipo().getTipoNome()
 									.equals("inteiro")) {
+								List<Object> l = new ArrayList<>();
+								l.add(funcao);
+								l.add(definicao);
+								node.doChildAction(1, l);
 								node.doChildAction(2, object);
 								node.doChildAction(4, object);
 							} else {
@@ -2759,6 +2788,10 @@ public class Compiler {
 												definicaoTest));
 								if (definicao.getTipo().getTipoNome()
 										.equals("inteiro")) {
+									List<Object> l = new ArrayList<>();
+									l.add(funcao);
+									l.add(definicao);
+									node.doChildAction(1, l);
 									node.doChildAction(2, definicao);
 									node.doChildAction(4, object);
 								} else {
@@ -3277,7 +3310,10 @@ public class Compiler {
 													.indexOf(definicaoTest));
 //							if (definicao.getTipo().getTipoNome()
 //									.equals("inteiro")) {
-								node.doChildAction(1, definicao);
+							List<Object> l = new ArrayList<>();
+							l.add(funcao);
+							l.add(definicao);
+							node.doChildAction(1, l);
 //							} else {
 //								throw new SemanticException("Tipo de " + id
 //										+ " deveria ser inteiro");
@@ -3289,7 +3325,10 @@ public class Compiler {
 												definicaoTest));
 								if (definicao.getTipo().getTipoNome()
 										.equals("inteiro")) {
-									node.doChildAction(1, definicao);
+									List<Object> l = new ArrayList<>();
+									l.add(funcao);
+									l.add(definicao);
+									node.doChildAction(1, l);
 								} else {
 									throw new SemanticException("Tipo de " + id
 											+ " deveria ser inteiro");
