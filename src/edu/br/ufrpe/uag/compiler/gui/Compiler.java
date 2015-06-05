@@ -45,7 +45,7 @@ public class Compiler {
 		Terminal SENAO = new Terminal(13, "snao", "SENAO");
 		Terminal SE = new Terminal(14, "se", "SE");
 		Terminal BOOLEANOS = new Terminal(15, "V|F", "BOOLEANOS");
-		Terminal FALSO = new Terminal(16, "F", "FALSO");
+		Terminal CHAMA = new Terminal(16, "chama", "CHAMA");
 		Terminal PARE = new Terminal(17, "pare", "PARE");
 		Terminal CONTINUE = new Terminal(18, "continue", "CONTINUE");
 		Terminal MAIS = new Terminal(19, "\\+", "MAIS");
@@ -81,7 +81,7 @@ public class Compiler {
 		lexicalAnalyzer.addTerminal(SE);
 		lexicalAnalyzer.addTerminal(SENAO);
 		lexicalAnalyzer.addTerminal(BOOLEANOS);
-		lexicalAnalyzer.addTerminal(FALSO);
+		lexicalAnalyzer.addTerminal(CHAMA);
 		lexicalAnalyzer.addTerminal(PARE);
 		lexicalAnalyzer.addTerminal(CONTINUE);
 		lexicalAnalyzer.addTerminal(MAIS);
@@ -791,6 +791,44 @@ public class Compiler {
 						node.doChildAction(4, object);
 					}
 				});
+		
+		escopo_funcao.addProduction(CHAMA.and(abre_parenteses).and(ID).and(abre_parenteses).and(assinatura_argumentos).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(2);
+				String assinatura_argumentos = node.getWriteJava(4);
+				String separa_escopo_funcao = node.getWriteJava(7);
+				return id+"("+assinatura_argumentos+";\n\t"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {				
+				String id = node.getTokenExpression(2);
+				Definicao definicaoTest = new Definicao(id, new Tipo(""));
+				if(semanticAnalyzer.getDefinicoes().contains(definicaoTest)){
+					Definicao definicao = semanticAnalyzer.getDefinicoes().get(semanticAnalyzer.getDefinicoes().indexOf(definicaoTest));
+					if(definicao instanceof Funcao){
+						List<Object> l = new ArrayList<Object>();
+						l.add(object);
+						l.add(definicao);
+						node.doChildAction(4, l);
+						Funcao funcao = (Funcao)object;
+						if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
+							throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+						} else {
+							funcao.setPosition(0);
+						}
+						node.doChildAction(7, object);
+					} else {
+						throw new SemanticException(id+" deveria ser uma função ou procedimento!");
+					}
+				} else {
+					throw new SemanticException("Identificador "+id+" não declarado");
+				}
+				
+			}
+		});
 
 		/**
 		 * separa_escopo_funcao
@@ -1020,6 +1058,44 @@ public class Compiler {
 						node.doChildAction(4, object);
 					}
 				});
+		
+		separa_escopo_funcao.addProduction(CHAMA.and(abre_parenteses).and(ID).and(abre_parenteses).and(assinatura_argumentos).and(fecha_parenteses).and(PONTOVIRGULA).and(separa_escopo_funcao), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String id = node.getTokenExpression(2);
+				String assinatura_argumentos = node.getWriteJava(4);
+				String separa_escopo_funcao = node.getWriteJava(7);
+				return id+"("+assinatura_argumentos+";\n\t"+separa_escopo_funcao;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {				
+				String id = node.getTokenExpression(2);
+				Definicao definicaoTest = new Definicao(id, new Tipo(""));
+				if(semanticAnalyzer.getDefinicoes().contains(definicaoTest)){
+					Definicao definicao = semanticAnalyzer.getDefinicoes().get(semanticAnalyzer.getDefinicoes().indexOf(definicaoTest));
+					if(definicao instanceof Funcao){
+						List<Object> l = new ArrayList<Object>();
+						l.add(object);
+						l.add(definicao);
+						node.doChildAction(4, l);
+						Funcao funcao = (Funcao)object;
+						if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
+							throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+						} else {
+							funcao.setPosition(0);
+						}
+						node.doChildAction(7, object);
+					} else {
+						throw new SemanticException(id+" deveria ser uma função ou procedimento!");
+					}
+				} else {
+					throw new SemanticException("Identificador "+id+" não declarado");
+				}
+				
+			}
+		});
 
 		separa_escopo_funcao.addProduction(Terminal.BLANK,
 				new SemanticAction() {
@@ -1115,12 +1191,12 @@ public class Compiler {
 						List<Object> l = (List<Object>)object;
 						if(l.get(1) instanceof Funcao){
 							Funcao funcao = (Funcao)l.get(1);
+							List<Object> l2 = new ArrayList<>();
 							node.doChildAction(1, object);
 							if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
 								throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
 							} else {
 								funcao.setPosition(0);
-								System.out.println("Zerou");
 							}
 						} else {
 							throw new SemanticException("Era esperada uma função!");
@@ -1223,7 +1299,10 @@ public class Compiler {
 						if (semanticAnalyzer.getDefinicoes().contains(definicaoTest)) {
 							Definicao definicao = semanticAnalyzer.getDefinicoes().get(semanticAnalyzer.getDefinicoes().indexOf(definicaoTest));
 							if (definicao.getTipo().getTipoNome().equals(definicaoEsquerda.getTipo().getTipoNome())) {
-								node.doChildAction(1, funcao);
+								List<Object> l2 = new ArrayList<>();
+								l2.add(l.get(0));
+								l2.add(definicao);
+								node.doChildAction(1, l2);
 							} else {
 								throw new SemanticException("Tipo de " + id	+ " deveria ser "+definicaoEsquerda.getTipo().getTipoNome());
 							}
@@ -1233,7 +1312,10 @@ public class Compiler {
 										.get(funcao.getParametros().indexOf(
 												definicaoTest));
 								if (definicao.getTipo().getTipoNome().equals(definicaoEsquerda.getTipo().getTipoNome())) {
-									node.doChildAction(1, funcao);
+									List<Object> l2 = new ArrayList<>();
+									l2.add(l.get(0));
+									l2.add(definicao);
+									node.doChildAction(1, l2);
 								} else {
 									throw new SemanticException("Tipo de " + id	+ " deveria ser "+definicaoEsquerda.getTipo().getTipoNome());
 								}
@@ -2925,7 +3007,8 @@ public class Compiler {
 					@Override
 					public void doAction(NonLeaf node, Object object)
 							throws SemanticException {
-						Definicao definicaoTest = (Definicao) object;
+						List<Object> l = (List<Object>)object;
+						Definicao definicaoTest = (Definicao) l.get(1);
 						if (semanticAnalyzer.getDefinicoes().contains(
 								definicaoTest)) {
 							Definicao definicao = semanticAnalyzer
@@ -2933,9 +3016,21 @@ public class Compiler {
 											semanticAnalyzer.getDefinicoes()
 													.indexOf(definicaoTest));
 							Funcao funcao = (Funcao) definicao;
+							
+							List<Object> l2 = new ArrayList<>();
+							
+							l2.add(l.get(0));
+							l2.add(funcao);
 
-							node.doChildAction(1, funcao);
-							node.doChildAction(2, object);
+							node.doChildAction(1, l2);
+							
+							if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
+								throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+							} else {
+								funcao.setPosition(0);
+							}
+							
+							node.doChildAction(2, l.get(0));
 						}
 					}
 				});
@@ -2967,8 +3062,9 @@ public class Compiler {
 			@Override
 			public void doAction(NonLeaf node, Object object)
 					throws SemanticException {
-				node.doChildAction(1, object);
-				node.doChildAction(2, object);
+				Funcao funcao = (Funcao)(((List<Object>) object).get(0));
+				node.doChildAction(1, funcao);
+				node.doChildAction(2, funcao);
 			}
 		});
 		chamada_comparacao_operacao.addProduction(MENOS.and(ID_chamada_NUMERO)
@@ -2984,8 +3080,9 @@ public class Compiler {
 			@Override
 			public void doAction(NonLeaf node, Object object)
 					throws SemanticException {
-				node.doChildAction(1, object);
-				node.doChildAction(2, object);
+				Funcao funcao = (Funcao)(((List<Object>) object).get(0));
+				node.doChildAction(1, funcao);
+				node.doChildAction(2, funcao);
 			}
 		});
 		chamada_comparacao_operacao.addProduction(VEZES.and(ID_chamada_NUMERO)
@@ -3001,8 +3098,9 @@ public class Compiler {
 			@Override
 			public void doAction(NonLeaf node, Object object)
 					throws SemanticException {
-				node.doChildAction(1, object);
-				node.doChildAction(2, object);
+				Funcao funcao = (Funcao)(((List<Object>) object).get(0));
+				node.doChildAction(1, funcao);
+				node.doChildAction(2, funcao);
 			}
 		});
 		chamada_comparacao_operacao.addProduction(
