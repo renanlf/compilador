@@ -2,8 +2,8 @@ package edu.br.ufrpe.uag.compiler.exceptions;
 
 public class DuplicateDefinicao extends SemanticException {
 
-	public DuplicateDefinicao(String message) {
-		super("Identificador "+message+" já está sendo utilizado.");
+	public DuplicateDefinicao(int row, String message) {
+		super(row, "Identificador "+message+" já está sendo utilizado.");
 	}
 
 	/**

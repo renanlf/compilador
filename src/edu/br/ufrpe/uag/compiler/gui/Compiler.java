@@ -153,7 +153,7 @@ public class Compiler {
 							throws SemanticException {
 						Funcao executa = new Funcao("executa", null);
 						if (semanticAnalyzer.isExistsExecuta()) {
-							throw new SemanticException(
+							throw new SemanticException(node.getTokenRow(), 
 									"método executa duplicado!");
 						} else {
 							semanticAnalyzer.setExistsExecuta(true);
@@ -182,7 +182,7 @@ public class Compiler {
 						Definicao definicao = new Definicao(id, tipo);
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 							node.doChildAction(2, definicao);
 							node.doChildAction(3, object);
@@ -216,7 +216,7 @@ public class Compiler {
 						Definicao definicao = new Definicao(id, tipo);
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 //							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(2, definicao);
@@ -267,7 +267,7 @@ public class Compiler {
 						Funcao definicao = new Funcao(id, tipo);
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(3, definicao);
@@ -300,7 +300,7 @@ public class Compiler {
 							throws SemanticException {
 						Funcao executa = new Funcao("executa", null);
 						if (semanticAnalyzer.isExistsExecuta()) {
-							throw new SemanticException(
+							throw new SemanticException(node.getTokenRow(), 
 									"método executa duplicado!");
 						} else {
 							semanticAnalyzer.setExistsExecuta(true);
@@ -330,7 +330,7 @@ public class Compiler {
 						Definicao definicao = new Definicao(id, tipo);
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 //							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(2, definicao);
@@ -366,7 +366,7 @@ public class Compiler {
 						Definicao definicao = new Definicao(id, tipo);
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(2, definicao);
@@ -417,7 +417,7 @@ public class Compiler {
 						Funcao definicao = new Funcao(id, tipo);
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(3, definicao);
@@ -466,7 +466,7 @@ public class Compiler {
 				node.doChildAction(1, funcao);
 				node.doChildAction(3, funcao);
 				if(!funcao.isHaveRetorno()){
-					throw new SemanticException("Função "+funcao.getVariavel()+" sem retorno");
+					throw new SemanticException(node.getTokenRow(), "Função "+funcao.getVariavel()+" sem retorno");
 				}
 			}
 		});
@@ -582,7 +582,7 @@ public class Compiler {
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)
 								|| funcao.getParametros().contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(3, object);
@@ -612,7 +612,7 @@ public class Compiler {
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)
 								|| funcao.getParametros().contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(3, object);
@@ -654,7 +654,7 @@ public class Compiler {
 								node.doChildAction(2, l);
 								node.doChildAction(4, object);
 //							} else {
-//								throw new SemanticException("Tipo de " + id
+//								throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //										+ " deveria ser inteiro");
 //							}
 						} else {
@@ -668,11 +668,11 @@ public class Compiler {
 									node.doChildAction(2, l);
 									node.doChildAction(4, object);
 //								} else {
-//									throw new SemanticException("Tipo de " + id
+//									throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //											+ " deveria ser inteiro");
 //								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 						}
@@ -815,16 +815,16 @@ public class Compiler {
 						node.doChildAction(4, l);
 						Funcao funcao = (Funcao)object;
 						if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-							throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+							throw new SemanticException(node.getTokenRow(), "Quantidade de argumentos esperada era "+funcao.getParametros().size());
 						} else {
 							funcao.setPosition(0);
 						}
 						node.doChildAction(7, object);
 					} else {
-						throw new SemanticException(id+" deveria ser uma função ou procedimento!");
+						throw new SemanticException(node.getTokenRow(), id+" deveria ser uma função ou procedimento!");
 					}
 				} else {
-					throw new SemanticException("Identificador "+id+" não declarado");
+					throw new SemanticException(node.getTokenRow(), "Identificador "+id+" não declarado");
 				}
 				
 			}
@@ -852,7 +852,7 @@ public class Compiler {
 				Definicao definicao = new Definicao(id, new Tipo("inteiro"));
 				if (semanticAnalyzer.getDefinicoes().contains(definicao)
 						|| funcao.getParametros().contains(definicao)) {
-					throw new DuplicateDefinicao(id);
+					throw new DuplicateDefinicao(node.getTokenRow(), id);
 				} else {
 					semanticAnalyzer.getDefinicoes().add(definicao);
 					node.doChildAction(3, object);
@@ -878,7 +878,7 @@ public class Compiler {
 				Definicao definicao = new Definicao(id, new Tipo("booleano"));
 				if (semanticAnalyzer.getDefinicoes().contains(definicao)
 						|| funcao.getParametros().contains(definicao)) {
-					throw new DuplicateDefinicao(id);
+					throw new DuplicateDefinicao(node.getTokenRow(), id);
 				} else {
 					semanticAnalyzer.getDefinicoes().add(definicao);
 					node.doChildAction(3, object);
@@ -920,7 +920,7 @@ public class Compiler {
 								node.doChildAction(2, l);
 								node.doChildAction(4, object);
 //							} else {
-//								throw new SemanticException("Tipo de " + id
+//								throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //										+ " deveria ser inteiro");
 //							}
 						} else {
@@ -934,11 +934,11 @@ public class Compiler {
 									node.doChildAction(2, l);
 									node.doChildAction(4, object);
 //								} else {
-//									throw new SemanticException("Tipo de " + id
+//									throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //											+ " deveria ser inteiro");
 //								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 						}
@@ -1082,16 +1082,16 @@ public class Compiler {
 						node.doChildAction(4, l);
 						Funcao funcao = (Funcao)object;
 						if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-							throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+							throw new SemanticException(node.getTokenRow(), "Quantidade de argumentos esperada era "+funcao.getParametros().size());
 						} else {
 							funcao.setPosition(0);
 						}
 						node.doChildAction(7, object);
 					} else {
-						throw new SemanticException(id+" deveria ser uma função ou procedimento!");
+						throw new SemanticException(node.getTokenRow(), id+" deveria ser uma função ou procedimento!");
 					}
 				} else {
-					throw new SemanticException("Identificador "+id+" não declarado");
+					throw new SemanticException(node.getTokenRow(), "Identificador "+id+" não declarado");
 				}
 				
 			}
@@ -1136,7 +1136,7 @@ public class Compiler {
 								l.add(definicao);
 								node.doChildAction(1, l);
 							} else {
-								throw new SemanticException("Tipo de " + id
+								throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 										+ " não é inteiro");
 							}
 
@@ -1152,11 +1152,11 @@ public class Compiler {
 									l.add(definicao);
 									node.doChildAction(1, l);
 								} else {
-									throw new SemanticException("Tipo de " + id
+									throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 											+ " não é inteiro");
 								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 						}
@@ -1194,12 +1194,12 @@ public class Compiler {
 							List<Object> l2 = new ArrayList<>();
 							node.doChildAction(1, object);
 							if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-								throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+								throw new SemanticException(node.getTokenRow(), "Quantidade de argumentos esperada era "+funcao.getParametros().size());
 							} else {
 								funcao.setPosition(0);
 							}
 						} else {
-							throw new SemanticException("Era esperada uma função!");
+							throw new SemanticException(node.getTokenRow(), "Era esperada uma função!");
 						}
 					}
 				});
@@ -1304,7 +1304,7 @@ public class Compiler {
 								l2.add(definicao);
 								node.doChildAction(1, l2);
 							} else {
-								throw new SemanticException("Tipo de " + id	+ " deveria ser "+definicaoEsquerda.getTipo().getTipoNome());
+								throw new SemanticException(node.getTokenRow(), "Tipo de " + id	+ " deveria ser "+definicaoEsquerda.getTipo().getTipoNome());
 							}
 						} else {
 							if (funcao.getParametros().contains(definicaoTest)) {
@@ -1317,10 +1317,10 @@ public class Compiler {
 									l2.add(definicao);
 									node.doChildAction(1, l2);
 								} else {
-									throw new SemanticException("Tipo de " + id	+ " deveria ser "+definicaoEsquerda.getTipo().getTipoNome());
+									throw new SemanticException(node.getTokenRow(), "Tipo de " + id	+ " deveria ser "+definicaoEsquerda.getTipo().getTipoNome());
 								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 						}
@@ -1346,7 +1346,7 @@ public class Compiler {
 						if(definicaoEsquerda.getTipo().getTipoNome().equals("inteiro")){
 							node.doChildAction(1, funcao);
 						} else {
-							throw new SemanticException("O identificador "+ definicaoEsquerda.getVariavel()+ " não é do tipo inteiro");
+							throw new SemanticException(node.getTokenRow(), "O identificador "+ definicaoEsquerda.getVariavel()+ " não é do tipo inteiro");
 						}
 					}
 				});
@@ -1368,7 +1368,7 @@ public class Compiler {
 				List<Object> l = (List<Object>)object;
 				Definicao definicaoEsquerda = (Definicao)l.get(1);
 				if(!(definicaoEsquerda.getTipo().getTipoNome().equals("booleano"))){
-					throw new SemanticException("O identificador "+ definicaoEsquerda.getVariavel()+ " não é do tipo booleano");
+					throw new SemanticException(node.getTokenRow(), "O identificador "+ definicaoEsquerda.getVariavel()+ " não é do tipo booleano");
 				}
 			}
 		});
@@ -1444,7 +1444,7 @@ public class Compiler {
 								node.doChildAction(1, l);
 								node.doChildAction(3, object);
 							} else {
-								throw new SemanticException("Tipo de " + id
+								throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 										+ " não é inteiro");
 							}
 						} else {
@@ -1460,11 +1460,11 @@ public class Compiler {
 									node.doChildAction(1, l);
 									node.doChildAction(3, object);
 								} else {
-									throw new SemanticException("Tipo de " + id
+									throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 											+ " não é inteiro");
 								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 						}
@@ -1483,7 +1483,7 @@ public class Compiler {
 					public void doAction(NonLeaf node, Object object) throws SemanticException {
 //						Funcao funcao = (Funcao)object;
 //						if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-//							throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+//							throw new SemanticException(node.getTokenRow(), "Quantidade de argumentos esperada era "+funcao.getParametros().size());
 //						} else {
 //							funcao.setPosition(0);
 //						}
@@ -1513,15 +1513,15 @@ public class Compiler {
 								// chamada da função coloque no início as
 								// posições do parâmetro
 //								if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-//									throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+//									throw new SemanticException(node.getTokenRow(), "Quantidade de argumentos esperada era "+funcao.getParametros().size());
 //								} else {
 //									funcao.setPosition(0);
 //								}
 							} else {
-								throw new SemanticException("Era experado um argumento do tipo "+ parametro.getTipo().getTipoNome());
+								throw new SemanticException(node.getTokenRow(), "Era experado um argumento do tipo "+ parametro.getTipo().getTipoNome());
 							}
 						} else {
-							throw new SemanticException("A quantidade de argumentos necessária era "+ funcao.getParametros().size());
+							throw new SemanticException(node.getTokenRow(), "A quantidade de argumentos necessária era "+ funcao.getParametros().size());
 						}
 					}
 				});
@@ -1551,17 +1551,17 @@ public class Compiler {
 						funcao.updatePosition();
 						node.doChildAction(1, l);
 //						if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-//							throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+//							throw new SemanticException(node.getTokenRow(), "Quantidade de argumentos esperada era "+funcao.getParametros().size());
 //						} else {
 //							funcao.setPosition(0);
 //						}
 					} else {
-						throw new SemanticException(
+						throw new SemanticException(node.getTokenRow(), 
 								"Era experado um argumento do tipo "
 										+ parametro.getTipo().getTipoNome());
 					}
 				} else {
-					throw new SemanticException(
+					throw new SemanticException(node.getTokenRow(), 
 							"A quantidade de argumentos necessária era "
 									+ funcao.getParametros().size());
 				}
@@ -1599,16 +1599,16 @@ public class Compiler {
 									funcao.updatePosition();
 									node.doChildAction(1, l);
 //									if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-//										throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+//										throw new SemanticException(node.getTokenRow(), "Quantidade de argumentos esperada era "+funcao.getParametros().size());
 //									} else {
 //										funcao.setPosition(0);
 //									}
 								} else {
-									throw new SemanticException("Era experado um argumento do tipo "+ parametro.getTipo()
+									throw new SemanticException(node.getTokenRow(), "Era experado um argumento do tipo "+ parametro.getTipo()
 															.getTipoNome());
 								}
 							} else {
-								throw new SemanticException(
+								throw new SemanticException(node.getTokenRow(), 
 										"A quantidade de argumentos necessária era "
 												+ funcao.getParametros().size());
 							}
@@ -1621,23 +1621,23 @@ public class Compiler {
 										funcao.updatePosition();
 										node.doChildAction(1, l);
 //										if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-//											throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+//											throw new SemanticException(node.getTokenRow(), "Quantidade de argumentos esperada era "+funcao.getParametros().size());
 //										} else {
 //											funcao.setPosition(0);
 //										}
 									} else {
-										throw new SemanticException(
+										throw new SemanticException(node.getTokenRow(), 
 												"Era experado um argumento do tipo "
 														+ parametro.getTipo()
 																.getTipoNome());
 									}
 								} else {
-									throw new SemanticException(
+									throw new SemanticException(node.getTokenRow(), 
 											"A quantidade de argumentos necessária era "
 													+ funcao.getParametros().size());
 								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 						}
@@ -1668,13 +1668,13 @@ public class Compiler {
 								funcao.updatePosition();
 								node.doChildAction(1, l);
 							} else {
-								throw new SemanticException(
+								throw new SemanticException(node.getTokenRow(), 
 										"Era experado um argumento do tipo "
 												+ parametro.getTipo()
 														.getTipoNome());
 							}
 						} else {
-							throw new SemanticException(
+							throw new SemanticException(node.getTokenRow(), 
 									"A quantidade de argumentos necessária era "
 											+ funcao.getParametros().size());
 						}
@@ -1706,12 +1706,12 @@ public class Compiler {
 								funcao.updatePosition();
 								node.doChildAction(1, l);
 							} else {
-								throw new SemanticException("Era experado um argumento do tipo "
+								throw new SemanticException(node.getTokenRow(), "Era experado um argumento do tipo "
 												+ parametro.getTipo()
 														.getTipoNome());
 							}
 						} else {
-							throw new SemanticException(
+							throw new SemanticException(node.getTokenRow(), 
 									"A quantidade de argumentos necessária era "
 											+ funcao.getParametros().size());
 						}
@@ -1748,13 +1748,13 @@ public class Compiler {
 									funcao.updatePosition();
 									node.doChildAction(1, l);
 								} else {
-									throw new SemanticException(
+									throw new SemanticException(node.getTokenRow(), 
 											"Era experado um argumento do tipo "
 													+ parametro.getTipo()
 															.getTipoNome());
 								}
 							} else {
-								throw new SemanticException(
+								throw new SemanticException(node.getTokenRow(), 
 										"A quantidade de argumentos necessária era "
 												+ funcao.getParametros().size());
 							}
@@ -1767,23 +1767,23 @@ public class Compiler {
 										funcao.updatePosition();
 										node.doChildAction(1, l);
 //										if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-//											throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+//											throw new SemanticException(node.getTokenRow(), "Quantidade de argumentos esperada era "+funcao.getParametros().size());
 //										} else {
 //											funcao.setPosition(0);
 //										}
 									} else {
-										throw new SemanticException(
+										throw new SemanticException(node.getTokenRow(), 
 												"Era experado um argumento do tipo "
 														+ parametro.getTipo()
 																.getTipoNome());
 									}
 								} else {
-									throw new SemanticException(
+									throw new SemanticException(node.getTokenRow(), 
 											"A quantidade de argumentos necessária era "
 													+ funcao.getParametros().size());
 								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 							
@@ -1817,7 +1817,7 @@ public class Compiler {
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
 //				Funcao funcao = (Funcao)object;
 //				if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-//					throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+//					throw new SemanticException(node.getTokenRow(), "Quantidade de argumentos esperada era "+funcao.getParametros().size());
 //				} else {
 //					funcao.setPosition(0);
 //				}
@@ -1846,7 +1846,7 @@ public class Compiler {
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)
 								|| funcao.getParametros().contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(3, object);
@@ -1874,7 +1874,7 @@ public class Compiler {
 								"booleano"));
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(3, object);
@@ -1916,7 +1916,7 @@ public class Compiler {
 								node.doChildAction(2, l);
 								node.doChildAction(4, object);
 //							} else {
-//								throw new SemanticException("Tipo de " + id
+//								throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //										+ " deveria ser inteiro");
 //							}
 						} else {
@@ -1930,11 +1930,11 @@ public class Compiler {
 									node.doChildAction(2, object);
 									node.doChildAction(4, object);
 //								} else {
-//									throw new SemanticException("Tipo de " + id
+//									throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //											+ " deveria ser inteiro");
 //								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 						}
@@ -2091,7 +2091,7 @@ public class Compiler {
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)
 								|| funcao.getParametros().contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(3, object);
@@ -2115,7 +2115,7 @@ public class Compiler {
 				String id = node.getTokenExpression(0);
 				Definicao definicao = new Definicao(id, new Tipo("booleano"));
 				if (semanticAnalyzer.getDefinicoes().contains(definicao)) {
-					throw new DuplicateDefinicao(id);
+					throw new DuplicateDefinicao(node.getTokenRow(), id);
 				} else {
 					semanticAnalyzer.getDefinicoes().add(definicao);
 					node.doChildAction(3, object);
@@ -2157,7 +2157,7 @@ public class Compiler {
 								node.doChildAction(2, l);
 								node.doChildAction(4, object);
 //							} else {
-//								throw new SemanticException("Tipo de " + id
+//								throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //										+ " deveria ser inteiro");
 //							}
 						} else {
@@ -2171,11 +2171,11 @@ public class Compiler {
 									node.doChildAction(2, l);
 									node.doChildAction(4, object);
 //								} else {
-//									throw new SemanticException("Tipo de " + id
+//									throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //											+ " deveria ser inteiro");
 //								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 						}
@@ -2346,7 +2346,7 @@ public class Compiler {
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)
 								|| funcao.getParametros().contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(3, object);
@@ -2371,7 +2371,7 @@ public class Compiler {
 				String id = node.getTokenExpression(0);
 				Definicao definicao = new Definicao(id, new Tipo("booleano"));
 				if (semanticAnalyzer.getDefinicoes().contains(definicao)) {
-					throw new DuplicateDefinicao(id);
+					throw new DuplicateDefinicao(node.getTokenRow(), id);
 				} else {
 					semanticAnalyzer.getDefinicoes().add(definicao);
 					node.doChildAction(3, object);
@@ -2413,7 +2413,7 @@ public class Compiler {
 								node.doChildAction(2, l);
 								node.doChildAction(4, object);
 //							} else {
-//								throw new SemanticException("Tipo de " + id
+//								throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //										+ " deveria ser inteiro");
 //							}
 						} else {
@@ -2427,11 +2427,11 @@ public class Compiler {
 									node.doChildAction(2, l);
 									node.doChildAction(4, object);
 //								} else {
-//									throw new SemanticException("Tipo de " + id
+//									throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //											+ " deveria ser inteiro");
 //								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 						}
@@ -2589,7 +2589,7 @@ public class Compiler {
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)
 								|| funcao.getParametros().contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(3, object);
@@ -2617,7 +2617,7 @@ public class Compiler {
 								"booleano"));
 						if (semanticAnalyzer.getDefinicoes()
 								.contains(definicao)) {
-							throw new DuplicateDefinicao(id);
+							throw new DuplicateDefinicao(node.getTokenRow(), id);
 						} else {
 							semanticAnalyzer.getDefinicoes().add(definicao);
 							node.doChildAction(3, object);
@@ -2659,7 +2659,7 @@ public class Compiler {
 								node.doChildAction(2, l);
 								node.doChildAction(4, object);
 //							} else {
-//								throw new SemanticException("Tipo de " + id
+//								throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //										+ " deveria ser inteiro");
 //							}
 						} else {
@@ -2673,11 +2673,11 @@ public class Compiler {
 									node.doChildAction(2, l);
 									node.doChildAction(4, object);
 //								} else {
-//									throw new SemanticException("Tipo de " + id
+//									throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //											+ " deveria ser inteiro");
 //								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 						}
@@ -2860,7 +2860,7 @@ public class Compiler {
 								node.doChildAction(2, object);
 								node.doChildAction(4, object);
 							} else {
-								throw new SemanticException("Tipo de " + id
+								throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 										+ " deveria ser inteiro");
 							}
 						} else {
@@ -2877,11 +2877,11 @@ public class Compiler {
 									node.doChildAction(2, definicao);
 									node.doChildAction(4, object);
 								} else {
-									throw new SemanticException("Tipo de " + id
+									throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 											+ " deveria ser inteiro");
 								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 						}
@@ -3025,7 +3025,7 @@ public class Compiler {
 							node.doChildAction(1, l2);
 							
 							if(funcao.getPosition() < funcao.getParametros().size() || funcao.getPosition() > funcao.getParametros().size()){
-								throw new SemanticException("Quantidade de argumentos esperada era "+funcao.getParametros().size());
+								throw new SemanticException(node.getTokenRow(), "Quantidade de argumentos esperada era "+funcao.getParametros().size());
 							} else {
 								funcao.setPosition(0);
 							}
@@ -3413,7 +3413,7 @@ public class Compiler {
 							l.add(definicao);
 							node.doChildAction(1, l);
 //							} else {
-//								throw new SemanticException("Tipo de " + id
+//								throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 //										+ " deveria ser inteiro");
 //							}
 						} else {
@@ -3428,11 +3428,11 @@ public class Compiler {
 									l.add(definicao);
 									node.doChildAction(1, l);
 								} else {
-									throw new SemanticException("Tipo de " + id
+									throw new SemanticException(node.getTokenRow(), "Tipo de " + id
 											+ " deveria ser inteiro");
 								}
 							} else {
-								throw new SemanticException("Identificador "
+								throw new SemanticException(node.getTokenRow(), "Identificador "
 										+ id + " não declarado");
 							}
 						}

@@ -28,6 +28,11 @@ public class NonLeaf extends SyntaxNode{
 		return child.getProduction().getSemanticAction().writeJava(child);
 	}
 	
+	public int getTokenRow(){
+		Leaf child = (Leaf)this.getChildren().get(0);
+		return child.getToken().getRow();
+	}
+	
 	public String getTokenExpression(int position){
 		return ((Leaf)this.getChildren().get(position)).getToken().getExpression();
 	}

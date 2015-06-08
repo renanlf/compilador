@@ -6,18 +6,19 @@ public class Token extends Terminal {
 //	private final Terminal terminal;
 	private final int id;
 	private final String expression;
+	private final int row;
 
 	/**
 	 * construtor do Token
 	 * @param terminal
 	 * @param expression
 	 */
-	public Token(Terminal terminal,
-			String expression) {
+	public Token(Terminal terminal, String expression, int row) {
 		super(terminal.getId(), terminal.getRegularExpression(), terminal.getName());
 		this.id = this.generateId();
 //		this.terminal = terminal;
 		this.expression = expression;
+		this.row = row;
 		
 	}
 
@@ -46,6 +47,10 @@ public class Token extends Terminal {
 			Token tokenO = (Token) o;
 			return this.getExpression().equals(tokenO.getExpression());
 		}
+	}
+
+	public int getRow() {
+		return row;
 	}
 	
 	

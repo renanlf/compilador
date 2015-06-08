@@ -60,7 +60,7 @@ public class LexicalAnalyzer {
 					sequenceRow = m.replaceFirst("");
 					removeInitialSpace();
 					//retorna o token
-					return new Token(tokenType, expression);
+					return new Token(tokenType, expression, row);
 				}
 			}
 			//caso o inicio da linha selecionada n�o possua token correspondente será lan�ada uma exce��o.

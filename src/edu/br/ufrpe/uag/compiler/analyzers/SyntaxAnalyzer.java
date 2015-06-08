@@ -77,7 +77,7 @@ public class SyntaxAnalyzer {
 									p);
 
 							Leaf blank = new Leaf(nonTerminalBlank, new Token(
-									Terminal.BLANK, "empty"));
+									Terminal.BLANK, "empty", lexicalAnalyzer.getRow()));
 							nonTerminalBlank.add(blank);
 
 							current.add(nonTerminalBlank);
@@ -121,13 +121,13 @@ public class SyntaxAnalyzer {
 					p = lastStack.getProduction(Terminal.BLANK);
 					current.setProduction(p);
 					current.add(new Leaf(current, new Token(Terminal.BLANK,
-							"empty")));
+							"empty", lexicalAnalyzer.getRow())));
 					stack.pop();
 				} else {
 					System.out.println(current.getNonTerminal().getName());
 					throw new TerminalNotFoundException(
 							current.getNonTerminal(), lexicalAnalyzer.getRow(),
-							new Token(Terminal.EOF, "$"));
+							new Token(Terminal.EOF, "$", lexicalAnalyzer.getRow()));
 				}
 			}
 		}
