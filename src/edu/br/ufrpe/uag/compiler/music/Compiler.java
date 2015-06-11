@@ -22,7 +22,7 @@ public class Compiler {
 		Terminal CLAVE = new Terminal(1, "Sol|Fa", "CLAVE");
 		Terminal COMPASSO = new Terminal(2, "[234]/4", "COMPASSO");
 		Terminal FIG_SOM = new Terminal(3, "[s]*[bmcf]", "FIG_SOM");
-		Terminal ACIDENTE = new Terminal(4, "[#b]", "ACIDENTE");
+		Terminal SUSTENIDO = new Terminal(4, "#", "SUSTENIDO");
 		Terminal ESPACO = new Terminal(5, " ", "ESPACO");
 		Terminal TAB = new Terminal(6, "\t", "TAB");
 		Terminal QUEBRA = new Terminal(7, "\n", "QUEBRA");
@@ -33,6 +33,7 @@ public class Compiler {
 		Terminal ACORDE = new Terminal(12, "acorde", "ACORDE");
 		Terminal REPETICAO = new Terminal(13, "repeticao", "REPETICAO");
 		Terminal ASTERISCO = new Terminal(14, "\\*", "ASTERISCO");
+		Terminal BEMOL = new Terminal(15, "$", "BEMOL");
 		
 		//INICIALIZANDO ANALISADOR LEXICO
 		lexicalAnalyzer = new LexicalAnalyzer(source);
@@ -42,7 +43,7 @@ public class Compiler {
 		lexicalAnalyzer.addTerminal(CLAVE);
 		lexicalAnalyzer.addTerminal(COMPASSO);
 		lexicalAnalyzer.addTerminal(FIG_SOM);
-		lexicalAnalyzer.addTerminal(ACIDENTE);
+		lexicalAnalyzer.addTerminal(SUSTENIDO);
 		lexicalAnalyzer.addTerminal(ESPACO);
 		lexicalAnalyzer.addTerminal(TAB);
 		lexicalAnalyzer.addTerminal(QUEBRA);
@@ -53,6 +54,7 @@ public class Compiler {
 		lexicalAnalyzer.addTerminal(ACORDE);
 		lexicalAnalyzer.addTerminal(REPETICAO);
 		lexicalAnalyzer.addTerminal(ASTERISCO);
+		lexicalAnalyzer.addTerminal(BEMOL);
 		
 		//INICIALIZANDO NON TERMINAIS
 		NonTerminal escopo = new NonTerminal("escopo");
@@ -60,32 +62,45 @@ public class Compiler {
 		NonTerminal acorde_nota = new NonTerminal("acorde_nota");
 		NonTerminal notas_acorde = new NonTerminal("notas_acorde");
 		NonTerminal notas = new NonTerminal("notas");
+		NonTerminal acidentes = new NonTerminal("acidentes");
+		NonTerminal sustenidos = new NonTerminal("sustenidos");
+		NonTerminal bemois = new NonTerminal("bemois");
 		
 		/**
 		 * GRAMÀTICA LL(0)
 		 */
 		
-		// <escopo> ::= <NOTA><ACIDENTE><ESPACO><PARTITURA><ABRE_PAR><CLAVE><VIRGULA><COMPASSO><FECHA_PAR><escopo_partitura>
-		escopo.addProduction(NOTA.and(ACIDENTE).and(ESPACO).and(PARTITURA).and(ABRE_PAR).and(CLAVE).and(VIRGULA).and(COMPASSO).and(FECHA_PAR).and(escopo_partitura));
+		// <escopo> ::= <NOTA><acidentes><ESPACO><PARTITURA><ABRE_PAR><CLAVE><VIRGULA><COMPASSO><FECHA_PAR><escopo_partitura>
+		escopo.addProduction(NOTA.and(acidentes).and(ESPACO).and(PARTITURA).and(ABRE_PAR).and(CLAVE).and(VIRGULA).and(COMPASSO).and(FECHA_PAR).and(escopo_partitura));
 		
 		// <escopo_partitura> ::= <QUEBRA><TAB><acorde_nota><escopo_partitura>
 		escopo_partitura.addProduction(QUEBRA.and(TAB).and(acorde_nota).and(escopo_partitura));
 		escopo_partitura.addProduction(Token.BLANK);
 		
-		// <acorde_nota> ::= <FIG_SOM><NOTA><notas>
-		acorde_nota.addProduction(FIG_SOM.and(NOTA).and(notas));
+		// <acorde_nota> ::= <FIG_SOM><NOTA><acidentes><acidentes><notas>
+		acorde_nota.addProduction(FIG_SOM.and(NOTA).and(acidentes).and(acidentes).and(notas));
 		// <acorde_nota> ::= <ACORDE><notas_acorde>
 		acorde_nota.addProduction(ACORDE.and(notas_acorde));
 		acorde_nota.addProduction(REPETICAO);
 		acorde_nota.addProduction(ASTERISCO);
 		
-		// <notas_acorde> ::= <ESPACO><FIG_SOM><NOTA><notas_acorde>
-		notas_acorde.addProduction(ESPACO.and(FIG_SOM).and(NOTA).and(notas_acorde));
+		// <notas_acorde> ::= <ESPACO><FIG_SOM><NOTA><acidentes><notas_acorde>
+		notas_acorde.addProduction(ESPACO.and(FIG_SOM).and(NOTA).and(acidentes).and(acidentes).and(notas_acorde));
 		notas_acorde.addProduction(Token.BLANK);
 		
-		// <notas> ::= <ESPACO><FIG_SOM><NOTA><notas>
-		notas.addProduction(ESPACO.and(FIG_SOM).and(NOTA).and(notas));
+		// <notas> ::= <ESPACO><FIG_SOM><NOTA><acidentes><acidentes><notas>
+		notas.addProduction(ESPACO.and(FIG_SOM).and(NOTA).and(acidentes).and(acidentes).and(notas));
 		notas.addProduction(Token.BLANK);
+		
+		acidentes.addProduction(SUSTENIDO.and(sustenidos));
+		acidentes.addProduction(BEMOL.and(bemois));
+		acidentes.addProduction(Token.BLANK);
+		
+		sustenidos.addProduction(SUSTENIDO);
+		sustenidos.addProduction(Token.BLANK);
+		
+		bemois.addProduction(BEMOL);
+		bemois.addProduction(Token.BLANK);
 		
 		/**
 		 * INSTANCIANDO ANALISADOR SINTÁTICO
@@ -99,6 +114,7 @@ public class Compiler {
 		syntaxAnalyzer.addNonTerminal(acorde_nota);
 		syntaxAnalyzer.addNonTerminal(notas_acorde);
 		syntaxAnalyzer.addNonTerminal(notas);
+		syntaxAnalyzer.addNonTerminal(acidentes);
 		
 		//PEGANDO A ARVORE SINTATICA A PARTIR DA RAIZ
 		
@@ -110,10 +126,10 @@ public class Compiler {
 	}
 	
 	public static void main(String[] args){
-		String s = "C# partitura(Sol,3/4)\n"
+		String s = "C partitura(Sol,3/4)\n"
 				+ "	smC sbD sbC\n"
-				+ "	sbG smG\n"
-				+ "	acorde smG sbF	sbG";
+				+ "	sbG smG##\n"
+				+ "	acorde smG sbF sbG";
 		try {
 			System.out.println(compile(s));
 		} catch (SyntaxException | TerminalNotFoundException
