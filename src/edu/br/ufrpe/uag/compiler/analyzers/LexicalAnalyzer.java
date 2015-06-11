@@ -26,7 +26,7 @@ public class LexicalAnalyzer {
 		String[] newSequence = string.split("\n");
 		this.sequence = newSequence;
 		this.row = 0;
-		this.sequenceRow = new String(sequence[row]);
+		this.sequenceRow = "\n" + new String(sequence[row]);
 	}
 	
 	/**
@@ -49,7 +49,7 @@ public class LexicalAnalyzer {
 	public Token getNextToken(){
 		//se a linha selecionada possuir tamanho maior que 0.
 		if(sequenceRow.length() > 0){
-			removeInitialSpace();
+//			removeInitialSpace();
 			//laço que varre os tokens até encontrar algum que satisfaça a condição interna.
 			for(Terminal tokenType : terminals){
 				Matcher m = tokenType.getRegularExpression().matcher(sequenceRow);
@@ -58,7 +58,7 @@ public class LexicalAnalyzer {
 					String expression = m.group().trim();
 					//substitui o texto encontrado por vazio.
 					sequenceRow = m.replaceFirst("");
-					removeInitialSpace();
+//					removeInitialSpace();
 					//retorna o token
 					return new Token(tokenType, expression, row);
 				}
@@ -73,7 +73,7 @@ public class LexicalAnalyzer {
 			//se o numero de linhas for maior que o array contendo o texto original quebrado em linhas retorne null.
 			if(row > sequence.length-1) return null;
 			//caso n�o a linha selecionada ser� a proxima linha da sequencia.
-			sequenceRow = new String(sequence[row]);
+			sequenceRow = "\n"+new String(sequence[row]);
 			//recursivamente chama getNextToken() que agora estar� na nova linha.
 			return getNextToken();
 		}
