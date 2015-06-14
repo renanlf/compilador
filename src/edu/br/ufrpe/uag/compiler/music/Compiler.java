@@ -1,7 +1,6 @@
 package edu.br.ufrpe.uag.compiler.music;
 
 import edu.br.ufrpe.uag.compiler.analyzers.LexicalAnalyzer;
-import edu.br.ufrpe.uag.compiler.analyzers.SemanticAnalyzer;
 import edu.br.ufrpe.uag.compiler.analyzers.SyntaxAnalyzer;
 import edu.br.ufrpe.uag.compiler.exceptions.NonTerminalEmptyException;
 import edu.br.ufrpe.uag.compiler.exceptions.SemanticException;
@@ -17,9 +16,9 @@ import edu.br.ufrpe.uag.compiler.model.syntax.SyntaxNode;
 public class Compiler {
 	private static LexicalAnalyzer lexicalAnalyzer;
 	private static SyntaxAnalyzer syntaxAnalyzer;
-	private static SemanticAnalyzer semanticAnalyzer;
 
-	public static String compile(String source) throws SyntaxException, TerminalNotFoundException, NonTerminalEmptyException {
+	public static String compile(String source) throws SyntaxException, TerminalNotFoundException, NonTerminalEmptyException {		
+		
 		//INICIALIZANDO TERMINAIS
 		Terminal NOTA = new Terminal(0, "[CDEFGAB]", "NOTA");
 		Terminal CLAVE = new Terminal(1, "Sol|Fa", "CLAVE");
@@ -59,6 +58,8 @@ public class Compiler {
 		lexicalAnalyzer.addTerminal(ASTERISCO);
 		lexicalAnalyzer.addTerminal(OITAVA);
 		
+		SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+		
 		//INICIALIZANDO NON TERMINAIS
 		NonTerminal escopo = new NonTerminal("escopo");
 		NonTerminal escopo_partitura = new NonTerminal("escopo_partitura");
@@ -77,12 +78,17 @@ public class Compiler {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
+				String nota = node.getTokenExpression(0);
+				String acidentes = node.getWriteJava(1);
+				
+				String tom = Converter.converterTom(nota, acidentes);
+				tom = "\\generalsignature{"+tom+"}\n";
 				String compasso = node.getTokenExpression(7);
 				//Removendo a barra
 				compasso = compasso.replace("/", "");
 				compasso = "\\generalmeter{\\meterfrac"+compasso+"}\n";
 				String escopo_partitura = node.getWriteJava(9);
-				return compasso+"\\startextract\n"+escopo_partitura;
+				return tom+compasso+"\\startextract\n"+escopo_partitura;
 			}
 			
 			@Override
@@ -98,7 +104,15 @@ public class Compiler {
 			public String writeJava(NonLeaf node) {
 				String acorde_nota = node.getWriteJava(2);
 				String escopo_partitura = node.getWriteJava(3);
-				return acorde_nota+escopo_partitura;
+
+				if(semanticAnalyzer.isFirstLine()){
+					semanticAnalyzer.setFirstLine(false);
+					return acorde_nota+escopo_partitura;
+				} else {
+					return acorde_nota+"\n\\bar\n"+escopo_partitura;
+				}
+				
+				
 			}
 			
 			@Override
@@ -112,7 +126,7 @@ public class Compiler {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
-				return "\\endextract\n";
+				return "\n\\endextract\n";
 			}
 			
 			@Override
@@ -227,7 +241,20 @@ public class Compiler {
 		});
 		
 		// <acidentes> ::= <ACIDENTE>
-		acidentes.addProduction(ACIDENTE);
+		acidentes.addProduction(ACIDENTE, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String acidente = node.getTokenExpression(0);
+				return acidente;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		// <acidentes> ::= î
 		acidentes.addProduction(Token.BLANK, new SemanticAction() {
 			
@@ -291,16 +318,26 @@ public class Compiler {
 		//PEGANDO A ARVORE SINTATICA A PARTIR DA RAIZ
 		
 		SyntaxNode root = syntaxAnalyzer.parse();
-		System.out.println(((NonLeaf)root).getProduction().getSemanticAction().writeJava((NonLeaf)root));	
-		return root.toString();
+		String header = "\\documentclass{article}\n"+
+						"\\usepackage{musixtex}\n"+
+						"\\begin{document}\n"+
+						"\\begin{music}\n"+
+//						"\\parindent10mm\n"+
+//						"\\instrumentnumber{1}\n"+
+						"";
+		
+		String footer = "\\end{music}\n"
+					  + "\\end{document}";
+		return header+((NonLeaf)root).getProduction().getSemanticAction().writeJava((NonLeaf)root)+footer;
 		
 		
 	}
 	
 	public static void main(String[] args){
-		String s = "C# partitura(Sol,3/4)\n"
-				+ "	smC+1 sbD sbC\n";
-//				+ "	sbG smG\n"
+		String s = "C partitura(Sol,3/4)\n"
+				+ "	scC+1 cD fC\n"
+				+ "	sfA+2 fG\n"
+				+ "	cG cA+1";
 //				+ "	acorde smG sbF+2 sbG";
 		try {
 			System.out.println(compile(s));
