@@ -24,7 +24,7 @@ public class Compiler {
 		Terminal CLAVE = new Terminal(1, "Sol|Fa", "CLAVE");
 		Terminal COMPASSO = new Terminal(2, "[234]/4", "COMPASSO");
 		Terminal FIG_SOM = new Terminal(3, "[s]*[bmcf]", "FIG_SOM");
-		Terminal ACIDENTE = new Terminal(4, "[#b]", "ACIDENTE");
+		Terminal ACIDENTE = new Terminal(4, "[#$]", "ACIDENTE");
 		Terminal ESPACO = new Terminal(5, " ", "ESPACO");
 		Terminal TAB = new Terminal(6, "\t", "TAB");
 		Terminal QUEBRA = new Terminal(7, "\n", "QUEBRA");
@@ -36,6 +36,7 @@ public class Compiler {
 		Terminal REPETICAO = new Terminal(13, "repeticao", "REPETICAO");
 		Terminal ASTERISCO = new Terminal(14, "\\*", "ASTERISCO");
 		Terminal OITAVA = new Terminal(15, "\\+[1-4]", "OITAVA");
+		Terminal PERQUADRO = new Terminal(16, "=", "PERQUADRO");
 		
 		//INICIALIZANDO ANALISADOR LEXICO
 		lexicalAnalyzer = new LexicalAnalyzer(source);
@@ -57,6 +58,7 @@ public class Compiler {
 		lexicalAnalyzer.addTerminal(REPETICAO);
 		lexicalAnalyzer.addTerminal(ASTERISCO);
 		lexicalAnalyzer.addTerminal(OITAVA);
+		lexicalAnalyzer.addTerminal(PERQUADRO);
 		
 		SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
 		
@@ -68,6 +70,7 @@ public class Compiler {
 		NonTerminal notas = new NonTerminal("notas");
 		NonTerminal acidentes = new NonTerminal("acidentes");
 		NonTerminal oitavas = new NonTerminal("oitavas");
+		NonTerminal acidentes_nota = new NonTerminal("acidentes_nota");
 		
 		/**
 		 * GRAMÀTICA LL(0)
@@ -136,18 +139,19 @@ public class Compiler {
 			}
 		});
 		
-		// <acorde_nota> ::= <FIG_SOM><NOTA><notas>
-		acorde_nota.addProduction(FIG_SOM.and(NOTA).and(oitavas).and(notas), new SemanticAction() {
+		// <acorde_nota> ::= <FIG_SOM><NOTA><acidentes_notas><oitavas><notas>
+		acorde_nota.addProduction(FIG_SOM.and(NOTA).and(acidentes_nota).and(oitavas).and(notas), new SemanticAction() {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
 				String fig_som = node.getTokenExpression(0);
 				String nota = node.getTokenExpression(1);
 				
-				String oitavas = node.getWriteJava(2);
-				String notas = node.getWriteJava(3);
+				String acidentes_nota = node.getWriteJava(2);
+				String oitavas = node.getWriteJava(3);
+				String notas = node.getWriteJava(4);
 				
-				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som);
+				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som, acidentes_nota);
 				String nota_convertida = Converter.converteNota(nota, oitavas.replace("+", ""));
 				
 				return fig_som_convertida+"{"+nota_convertida+"} \\en"+notas;
@@ -166,17 +170,19 @@ public class Compiler {
 		// <acorde_nota> ::= <ASTERISCO>
 		acorde_nota.addProduction(ASTERISCO);
 		
-		// <notas_acorde> ::= <ESPACO><FIG_SOM><NOTA><notas_acorde>
-		notas_acorde.addProduction(ESPACO.and(FIG_SOM).and(NOTA).and(oitavas).and(notas_acorde), new SemanticAction() {
+		// <notas_acorde> ::= <ESPACO><FIG_SOM><NOTA><acidente_notas><oitavas><notas_acorde>
+		notas_acorde.addProduction(ESPACO.and(FIG_SOM).and(NOTA).and(acidentes_nota).and(oitavas).and(notas_acorde), new SemanticAction() {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
 				String fig_som = node.getTokenExpression(1);
 				String nota = node.getTokenExpression(2);
-				String oitavas = node.getTokenExpression(3);
-				String notas_acorde = node.getTokenExpression(4);
 				
-				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som);
+				String acidentes_nota = node.getWriteJava(3);
+				String oitavas = node.getWriteJava(4);
+				String notas_acorde = node.getWriteJava(5);
+				
+				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som, acidentes_nota);
 				String nota_convertida = Converter.converteNota(nota, oitavas.replace("+", ""));
 				
 				return "\n\t"+fig_som_convertida+"{"+nota_convertida+"} \\en"+notas_acorde;
@@ -203,17 +209,19 @@ public class Compiler {
 			}
 		});
 		
-		// <notas> ::= <ESPACO><FIG_SOM><NOTA><notas>
-		notas.addProduction(ESPACO.and(FIG_SOM).and(NOTA).and(oitavas).and(notas), new SemanticAction() {
+		// <notas> ::= <ESPACO><FIG_SOM><NOTA><acidente_notas><oitavas><notas>
+		notas.addProduction(ESPACO.and(FIG_SOM).and(NOTA).and(acidentes_nota).and(oitavas).and(notas), new SemanticAction() {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
 				String fig_som = node.getTokenExpression(1);
 				String nota = node.getTokenExpression(2);
-				String oitavas = node.getWriteJava(3);
-				String notas = node.getWriteJava(4);
 				
-				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som);
+				String acidentes_nota = node.getWriteJava(3);
+				String oitavas = node.getWriteJava(4);
+				String notas = node.getWriteJava(5);
+				
+				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som, acidentes_nota);
 				String nota_convertida = Converter.converteNota(nota, oitavas.replace("+", ""));
 				
 				return "\n\t"+fig_som_convertida+"{"+nota_convertida+"} \\en"+notas;
@@ -300,6 +308,53 @@ public class Compiler {
 			}
 		});
 		
+		acidentes_nota.addProduction(ACIDENTE, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String acidente = node.getTokenExpression(0);
+				if(acidente.equals("#")){
+					return("#");
+				} else {
+					return("$");
+				}
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		acidentes_nota.addProduction(PERQUADRO, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "=";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		acidentes_nota.addProduction(Token.BLANK, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				return "";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
 		/**
 		 * INSTANCIANDO ANALISADOR SINTÁTICO
 		 */
@@ -314,6 +369,7 @@ public class Compiler {
 		syntaxAnalyzer.addNonTerminal(notas);
 		syntaxAnalyzer.addNonTerminal(acidentes);
 		syntaxAnalyzer.addNonTerminal(oitavas);
+		syntaxAnalyzer.addNonTerminal(acidentes_nota);
 		
 		//PEGANDO A ARVORE SINTATICA A PARTIR DA RAIZ
 		

@@ -71,4 +71,8 @@ public class Converter {
 		return tom;
 	}
 	
+	public static String converteAcidente(String acidente){
+		//TODO implementar
+	}
+	
 }
