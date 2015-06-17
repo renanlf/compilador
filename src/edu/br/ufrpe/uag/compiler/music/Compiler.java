@@ -21,7 +21,7 @@ public class Compiler {
 		
 		//INICIALIZANDO TERMINAIS
 		Terminal NOTA = new Terminal(0, "[CDEFGAB]", "NOTA");
-		Terminal CLAVE = new Terminal(1, "Sol|Fa", "CLAVE");
+		Terminal CLAVE = new Terminal(1, "Sol|Ha", "CLAVE");
 		Terminal COMPASSO = new Terminal(2, "[234]/4", "COMPASSO");
 		Terminal FIG_SOM = new Terminal(3, "[s]*[bmcf]", "FIG_SOM");
 		Terminal ACIDENTE = new Terminal(4, "[#$]", "ACIDENTE");
@@ -35,7 +35,7 @@ public class Compiler {
 		Terminal ACORDE = new Terminal(12, "acorde", "ACORDE");
 		Terminal REPETICAO = new Terminal(13, "repeticao", "REPETICAO");
 		Terminal ASTERISCO = new Terminal(14, "\\*", "ASTERISCO");
-		Terminal OITAVA = new Terminal(15, "\\+[1-4]", "OITAVA");
+		Terminal OITAVA = new Terminal(15, "[\\+|\\-][1-4]", "OITAVA");
 		Terminal PERQUADRO = new Terminal(16, "=", "PERQUADRO");
 		
 		//INICIALIZANDO ANALISADOR LEXICO
@@ -86,12 +86,16 @@ public class Compiler {
 				
 				String tom = Converter.converterTom(nota, acidentes);
 				tom = "\\generalsignature{"+tom+"}\n";
+				
+				String clave = node.getTokenExpression(5);
+				clave = Converter.converteClave(clave);
+				
 				String compasso = node.getTokenExpression(7);
 				//Removendo a barra
 				compasso = compasso.replace("/", "");
 				compasso = "\\generalmeter{\\meterfrac"+compasso+"}\n";
 				String escopo_partitura = node.getWriteJava(9);
-				return tom+compasso+"\\startextract\n"+escopo_partitura;
+				return tom+compasso+clave+"\\startextract\n"+escopo_partitura;
 			}
 			
 			@Override
@@ -145,14 +149,14 @@ public class Compiler {
 			@Override
 			public String writeJava(NonLeaf node) {
 				String fig_som = node.getTokenExpression(0);
-				String nota = node.getTokenExpression(1);
+				String nota = node.getTokenExpression(1).toLowerCase();
 				
 				String acidentes_nota = node.getWriteJava(2);
 				String oitavas = node.getWriteJava(3);
 				String notas = node.getWriteJava(4);
 				
 				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som);
-				String nota_convertida = Converter.converteNota(nota, oitavas.replace("+", ""));
+				String nota_convertida = Converter.converteNota(nota, oitavas);
 				
 				return fig_som_convertida+"{"+acidentes_nota+nota_convertida+"} \\en"+notas;
 			}
@@ -176,14 +180,14 @@ public class Compiler {
 			@Override
 			public String writeJava(NonLeaf node) {
 				String fig_som = node.getTokenExpression(1);
-				String nota = node.getTokenExpression(2);
+				String nota = node.getTokenExpression(2).toLowerCase();
 				
 				String acidentes_nota = node.getWriteJava(3);
 				String oitavas = node.getWriteJava(4);
 				String notas_acorde = node.getWriteJava(5);
 				
 				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som);
-				String nota_convertida = Converter.converteNota(nota, oitavas.replace("+", ""));
+				String nota_convertida = Converter.converteNota(nota, oitavas);
 				
 				return "\n\t"+fig_som_convertida+"{"+acidentes_nota+nota_convertida+"} \\en"+notas_acorde;
 			}
@@ -215,14 +219,14 @@ public class Compiler {
 			@Override
 			public String writeJava(NonLeaf node) {
 				String fig_som = node.getTokenExpression(1);
-				String nota = node.getTokenExpression(2);
+				String nota = node.getTokenExpression(2).toLowerCase();
 				
 				String acidentes_nota = node.getWriteJava(3);
 				String oitavas = node.getWriteJava(4);
 				String notas = node.getWriteJava(5);
 				
 				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som);
-				String nota_convertida = Converter.converteNota(nota, oitavas.replace("+", ""));
+				String nota_convertida = Converter.converteNota(nota, oitavas);
 				
 				return "\n\t"+fig_som_convertida+"{"+acidentes_nota+nota_convertida+"} \\en"+notas;
 			}

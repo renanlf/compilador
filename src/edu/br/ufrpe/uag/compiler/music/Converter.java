@@ -5,7 +5,8 @@ import edu.br.ufrpe.uag.compiler.exceptions.SemanticException;
 
 public class Converter {
 	
-	private static final String[] ALFABETO = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
+	private static final String[] ALFABETO = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N",/*"O","P","Q","R","S","T","U","V","W","X","Y","Z,"*/
+											  "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
 	private static final String[] NOTAS = {"A","B","C","D","E","F","G"};
 	private static final String[] NOTAS_ACIDENTES = {"A","B","C","D","E","F","G","A#","C#","D#","F#","G#","A$","B$","D$","E$","G$"};
 	private static final int[]   NOTAS_NACIDENTES = { 3 , 5 , 0 , 2 , 4 , -1, 1 , -2 ,  7 , -3 ,  6 , -4 , -4 , -2 , 7  , -3 ,  6 };
@@ -22,16 +23,27 @@ public class Converter {
 	 */
 	public static String converteNota(String nota, String oitavas){
 		String notaResultado = "";
-		for(int i = 0; i < NOTAS.length; i++){
-			if(nota.equals(NOTAS[i])){
+		for(int i = 0; i < ALFABETO.length; i++){
+			if(nota.equals(ALFABETO[i])){
 				if(oitavas.equals("")){
 					notaResultado = ALFABETO[i];
 				} else {
-					int nOitavas = Integer.valueOf(oitavas);
-					if(i + nOitavas*7 > ALFABETO.length){
-//						throw new SemanticException(row, "A nota desejada é muito alta e não pode ser representada!");
+					if(oitavas.startsWith("+")){
+						oitavas = oitavas.replace("+", "");
+						int nOitavas = Integer.valueOf(oitavas);
+						if(i + nOitavas*7 > ALFABETO.length){
+	//						throw new SemanticException(row, "A nota desejada é muito alta e não pode ser representada!");
+						} else {
+							notaResultado = ALFABETO[i + nOitavas*7];
+						}
 					} else {
-						notaResultado = ALFABETO[i + nOitavas*7];
+						oitavas = oitavas.replace("-", "");
+						int nOitavas = Integer.valueOf(oitavas);
+						if(i - nOitavas*7 > ALFABETO.length){
+	//						throw new SemanticException(row, "A nota desejada é muito alta e não pode ser representada!");
+						} else {
+							notaResultado = ALFABETO[i - nOitavas*7];
+						}
 					}
 				}
 				break;
@@ -69,6 +81,13 @@ public class Converter {
 			}
 		}
 		return tom;
+	}
+	public static String converteClave(String clave) {
+		if(clave.equals("Sol")){
+			return "\\setclef1{0000}";
+		} else {
+			return "\\setclef1{6000}";
+		}
 	}
 	
 }
