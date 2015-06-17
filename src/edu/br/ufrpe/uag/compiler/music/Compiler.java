@@ -151,10 +151,10 @@ public class Compiler {
 				String oitavas = node.getWriteJava(3);
 				String notas = node.getWriteJava(4);
 				
-				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som, acidentes_nota);
+				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som);
 				String nota_convertida = Converter.converteNota(nota, oitavas.replace("+", ""));
 				
-				return fig_som_convertida+"{"+nota_convertida+"} \\en"+notas;
+				return fig_som_convertida+"{"+acidentes_nota+nota_convertida+"} \\en"+notas;
 			}
 			
 			@Override
@@ -182,10 +182,10 @@ public class Compiler {
 				String oitavas = node.getWriteJava(4);
 				String notas_acorde = node.getWriteJava(5);
 				
-				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som, acidentes_nota);
+				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som);
 				String nota_convertida = Converter.converteNota(nota, oitavas.replace("+", ""));
 				
-				return "\n\t"+fig_som_convertida+"{"+nota_convertida+"} \\en"+notas_acorde;
+				return "\n\t"+fig_som_convertida+"{"+acidentes_nota+nota_convertida+"} \\en"+notas_acorde;
 			}
 			
 			@Override
@@ -221,10 +221,10 @@ public class Compiler {
 				String oitavas = node.getWriteJava(4);
 				String notas = node.getWriteJava(5);
 				
-				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som, acidentes_nota);
+				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som);
 				String nota_convertida = Converter.converteNota(nota, oitavas.replace("+", ""));
 				
-				return "\n\t"+fig_som_convertida+"{"+nota_convertida+"} \\en"+notas;
+				return "\n\t"+fig_som_convertida+"{"+acidentes_nota+nota_convertida+"} \\en"+notas;
 			}
 			
 			@Override
@@ -314,9 +314,9 @@ public class Compiler {
 			public String writeJava(NonLeaf node) {
 				String acidente = node.getTokenExpression(0);
 				if(acidente.equals("#")){
-					return("#");
+					return("^");
 				} else {
-					return("$");
+					return("_");
 				}
 			}
 			

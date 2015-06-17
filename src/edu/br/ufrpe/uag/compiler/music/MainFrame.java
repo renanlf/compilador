@@ -76,6 +76,7 @@ public class MainFrame extends JFrame {
 		tabbedPane.addTab("Output", null, scrollPane_1, null);
 
 		JTextArea textAreaOutput = new JTextArea();
+		textAreaOutput.setEditable(false);
 		scrollPane_1.setViewportView(textAreaOutput);
 
 		btnCompile = new JButton("Compile");
