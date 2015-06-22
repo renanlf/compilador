@@ -16,6 +16,7 @@ import javax.swing.border.EmptyBorder;
 
 import edu.br.ufrpe.uag.compiler.exceptions.LexicalException;
 import edu.br.ufrpe.uag.compiler.exceptions.NonTerminalEmptyException;
+import edu.br.ufrpe.uag.compiler.exceptions.SemanticException;
 import edu.br.ufrpe.uag.compiler.exceptions.SyntaxException;
 import edu.br.ufrpe.uag.compiler.exceptions.TerminalNotFoundException;
 
@@ -101,6 +102,9 @@ public class MainFrame extends JFrame {
 					JOptionPane.showMessageDialog(null, ex.getMessage(),
 							"Error!", JOptionPane.ERROR_MESSAGE);
 				} catch (LexicalException ex) {
+					JOptionPane.showMessageDialog(null, ex.getMessage(),
+							"Error!", JOptionPane.ERROR_MESSAGE);
+				} catch (SemanticException ex) {
 					JOptionPane.showMessageDialog(null, ex.getMessage(),
 							"Error!", JOptionPane.ERROR_MESSAGE);
 				}

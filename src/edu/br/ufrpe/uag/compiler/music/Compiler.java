@@ -17,11 +17,11 @@ public class Compiler {
 	private static LexicalAnalyzer lexicalAnalyzer;
 	private static SyntaxAnalyzer syntaxAnalyzer;
 
-	public static String compile(String source) throws SyntaxException, TerminalNotFoundException, NonTerminalEmptyException {		
+	public static String compile(String source) throws SyntaxException, TerminalNotFoundException, NonTerminalEmptyException, SemanticException {		
 		
 		//INICIALIZANDO TERMINAIS
 		Terminal NOTA = new Terminal(0, "[CDEFGAB]", "NOTA");
-		Terminal CLAVE = new Terminal(1, "Sol|Ha", "CLAVE");
+		Terminal CLAVE = new Terminal(1, "Sol|Fa", "CLAVE");
 		Terminal COMPASSO = new Terminal(2, "[234]/4", "COMPASSO");
 		Terminal FIG_SOM = new Terminal(3, "[s]*[bmcf]", "FIG_SOM");
 		Terminal ACIDENTE = new Terminal(4, "[#$]", "ACIDENTE");
@@ -35,15 +35,18 @@ public class Compiler {
 		Terminal ACORDE = new Terminal(12, "acorde", "ACORDE");
 		Terminal REPETICAO = new Terminal(13, "repeticao", "REPETICAO");
 		Terminal ASTERISCO = new Terminal(14, "\\*", "ASTERISCO");
-		Terminal OITAVA = new Terminal(15, "[\\+|\\-][1-4]", "OITAVA");
-		Terminal PERQUADRO = new Terminal(16, "=", "PERQUADRO");
+		Terminal OITAVA = new Terminal(15, "[\\+|\\-][1-2]", "OITAVA");
+		Terminal BEQUADRO = new Terminal(16, "=", "PERQUADRO");
+		Terminal PAUSA = new Terminal(17, "p[s]*[bmcf]", "PAUSA");
+		Terminal FIM = new Terminal(18, ";", "FIM");
 		
 		//INICIALIZANDO ANALISADOR LEXICO
 		lexicalAnalyzer = new LexicalAnalyzer(source);
 		
 		//ADICIONANDO TERMINAIS AO ANALISADOR LÈXICO
-		lexicalAnalyzer.addTerminal(NOTA);
 		lexicalAnalyzer.addTerminal(CLAVE);
+		lexicalAnalyzer.addTerminal(PAUSA);
+		lexicalAnalyzer.addTerminal(NOTA);
 		lexicalAnalyzer.addTerminal(COMPASSO);
 		lexicalAnalyzer.addTerminal(FIG_SOM);
 		lexicalAnalyzer.addTerminal(ACIDENTE);
@@ -58,7 +61,8 @@ public class Compiler {
 		lexicalAnalyzer.addTerminal(REPETICAO);
 		lexicalAnalyzer.addTerminal(ASTERISCO);
 		lexicalAnalyzer.addTerminal(OITAVA);
-		lexicalAnalyzer.addTerminal(PERQUADRO);
+		lexicalAnalyzer.addTerminal(BEQUADRO);
+		lexicalAnalyzer.addTerminal(FIM);
 		
 		SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
 		
@@ -71,6 +75,7 @@ public class Compiler {
 		NonTerminal acidentes = new NonTerminal("acidentes");
 		NonTerminal oitavas = new NonTerminal("oitavas");
 		NonTerminal acidentes_nota = new NonTerminal("acidentes_nota");
+		NonTerminal som_pausa = new NonTerminal("som_pausa");
 		
 		/**
 		 * GRAMÀTICA LL(0)
@@ -100,7 +105,8 @@ public class Compiler {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				
+				node.doChildAction(1, object);
+				node.doChildAction(9, object);
 			}
 		});
 		
@@ -116,7 +122,12 @@ public class Compiler {
 					semanticAnalyzer.setFirstLine(false);
 					return acorde_nota+escopo_partitura;
 				} else {
-					return acorde_nota+"\n\\bar\n"+escopo_partitura;
+					if(semanticAnalyzer.isRepeatBar()){
+						semanticAnalyzer.setRepeatBar(false);
+						return acorde_nota+escopo_partitura;
+					} else {
+						return acorde_nota+"\n\\bar\n\t"+escopo_partitura;
+					}
 				}
 				
 				
@@ -124,8 +135,8 @@ public class Compiler {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
-				
+				node.doChildAction(2, object);
+				node.doChildAction(3, object);
 			}
 		});
 		// <escopo_partitura> ::= î
@@ -138,7 +149,6 @@ public class Compiler {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
 				
 			}
 		});
@@ -163,18 +173,83 @@ public class Compiler {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
-				
+				node.doChildAction(2, object);
+				node.doChildAction(3, object);
+				node.doChildAction(4, object);
 			}
 		});
-		// <acorde_nota> ::= <ACORDE><notas_acorde>
-		acorde_nota.addProduction(ACORDE.and(notas_acorde));
+		// <acorde_nota> ::= <ACORDE><notas_acorde><notas>
+		acorde_nota.addProduction(ACORDE.and(notas_acorde).and(notas), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String notas_acorde = node.getWriteJava(1);
+				String notas = node.getWriteJava(2);
+				return "\\Notes "+notas_acorde+notas;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
+			}
+		});
 		// <acorde_nota> ::= <REPETICAO>
-		acorde_nota.addProduction(REPETICAO);
+		acorde_nota.addProduction(REPETICAO, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				
+				semanticAnalyzer.setRepeatBar(true);
+				return "\n\t\\rightrepeat";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				if(semanticAnalyzer.isRepeat()){
+					semanticAnalyzer.setRepeat(false);
+				} else {
+					throw new SemanticException(node.getTokenRow(), "Não existe um início de repetição!");
+				}
+			}
+		});
 		// <acorde_nota> ::= <ASTERISCO>
-		acorde_nota.addProduction(ASTERISCO);
+		acorde_nota.addProduction(ASTERISCO, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				
+				return "\n\t\\NOtes\\segno m\\en";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				if(semanticAnalyzer.isRepeat()){
+					throw new SemanticException(node.getTokenRow(), "Já existe um início de repetição sem fim");
+				} else {
+					semanticAnalyzer.setRepeat(true);
+				}
+			}
+		});
+		// <acorde_nota> ::= <PAUSA><notas>
+		acorde_nota.addProduction(PAUSA.and(notas), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				
+				String pausa = node.getTokenExpression(0);
+				String notas = node.getWriteJava(1);
+				pausa = Converter.convertePausa(pausa);
+				return "\\Notes \\"+pausa+" \\en"+notas;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
+			}
+		});
 		
-		// <notas_acorde> ::= <ESPACO><FIG_SOM><NOTA><acidente_notas><oitavas><notas_acorde>
+		// <notas_acorde> ::= <ESPACO><FIG_SOM><NOTA><acidentes_nota><oitavas><notas_acorde>
 		notas_acorde.addProduction(ESPACO.and(FIG_SOM).and(NOTA).and(acidentes_nota).and(oitavas).and(notas_acorde), new SemanticAction() {
 			
 			@Override
@@ -186,55 +261,49 @@ public class Compiler {
 				String oitavas = node.getWriteJava(4);
 				String notas_acorde = node.getWriteJava(5);
 				
-				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som);
+				String fig_som_convertida = "\\"+Converter.converteFiguraSomAcorde(fig_som);
 				String nota_convertida = Converter.converteNota(nota, oitavas);
 				
-				return "\n\t"+fig_som_convertida+"{"+acidentes_nota+nota_convertida+"} \\en"+notas_acorde;
+				return fig_som_convertida+"{"+acidentes_nota+nota_convertida+"}"+notas_acorde;
 			}
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
-				
+				node.doChildAction(3, object);
+				node.doChildAction(4, object);
+				node.doChildAction(5, object);
 			}
 		});
 		// <notas_acorde> ::= î
-		notas_acorde.addProduction(Token.BLANK, new SemanticAction() {
+		notas_acorde.addProduction(FIM, new SemanticAction() {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
-				return "";
+				return " \\en";
 			}
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
 		
-		// <notas> ::= <ESPACO><FIG_SOM><NOTA><acidente_notas><oitavas><notas>
-		notas.addProduction(ESPACO.and(FIG_SOM).and(NOTA).and(acidentes_nota).and(oitavas).and(notas), new SemanticAction() {
+		// <notas> ::= <ESPACO><som_pausa><notas>
+		notas.addProduction(ESPACO.and(som_pausa).and(notas), new SemanticAction() {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
-				String fig_som = node.getTokenExpression(1);
-				String nota = node.getTokenExpression(2).toLowerCase();
+				String som_pausa = node.getWriteJava(1);
+				String notas = node.getWriteJava(2);
 				
-				String acidentes_nota = node.getWriteJava(3);
-				String oitavas = node.getWriteJava(4);
-				String notas = node.getWriteJava(5);
-				
-				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som);
-				String nota_convertida = Converter.converteNota(nota, oitavas);
-				
-				return "\n\t"+fig_som_convertida+"{"+acidentes_nota+nota_convertida+"} \\en"+notas;
+				return som_pausa+notas;
 			}
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
-				
+				node.doChildAction(1, object);
+				node.doChildAction(2, object);
 			}
 		});
 		// <notas> ::= î
@@ -247,8 +316,62 @@ public class Compiler {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
 				
+				
+			}
+		});
+		
+		// <som_pausa> ::= <FIG_SOM><NOTA><acidentes_nota><oitavas>
+		som_pausa.addProduction(FIG_SOM.and(NOTA).and(acidentes_nota).and(oitavas), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String fig_som = node.getTokenExpression(0);
+				String nota = node.getTokenExpression(1).toLowerCase();
+				
+				String acidentes_nota = node.getWriteJava(2);
+				String oitavas = node.getWriteJava(3);
+				
+				String fig_som_convertida = "\\Notes \\"+Converter.converteFiguraSom(fig_som);
+				String nota_convertida = Converter.converteNota(nota, oitavas);
+				
+				return "\n\t"+fig_som_convertida+"{"+acidentes_nota+nota_convertida+"} \\en";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(2, object);
+				node.doChildAction(3, object);
+			}
+		});
+		// <som_pausa> ::= <PAUSA>
+		som_pausa.addProduction(PAUSA, new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String pausa = node.getTokenExpression(0);
+				pausa = Converter.convertePausa(pausa);
+				return "\\Notes \\"+pausa+" \\en";
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				
+				
+			}
+		});
+		// <som_pausa> ::= <ACORDE><notas_acorde>
+		som_pausa.addProduction(ACORDE.and(notas_acorde), new SemanticAction() {
+			
+			@Override
+			public String writeJava(NonLeaf node) {
+				String notas_acorde = node.getWriteJava(1);
+				return "\\Notes "+notas_acorde;
+			}
+			
+			@Override
+			public void doAction(NonLeaf node, Object object) throws SemanticException {
+				node.doChildAction(1, object);
 			}
 		});
 		
@@ -263,7 +386,7 @@ public class Compiler {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -277,7 +400,7 @@ public class Compiler {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -293,7 +416,7 @@ public class Compiler {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -307,11 +430,12 @@ public class Compiler {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
 		
+		// <acidentes_nota> ::= <ACIDENTE>
 		acidentes_nota.addProduction(ACIDENTE, new SemanticAction() {
 			
 			@Override
@@ -326,12 +450,12 @@ public class Compiler {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
-		
-		acidentes_nota.addProduction(PERQUADRO, new SemanticAction() {
+		// <acidentes_nota> ::= <BEQUADRO>
+		acidentes_nota.addProduction(BEQUADRO, new SemanticAction() {
 			
 			@Override
 			public String writeJava(NonLeaf node) {
@@ -340,11 +464,11 @@ public class Compiler {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
-		
+		// <acidentes_nota> ::= î
 		acidentes_nota.addProduction(Token.BLANK, new SemanticAction() {
 			
 			@Override
@@ -354,7 +478,7 @@ public class Compiler {
 			
 			@Override
 			public void doAction(NonLeaf node, Object object) throws SemanticException {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		});
@@ -388,6 +512,10 @@ public class Compiler {
 		
 		String footer = "\\end{music}\n"
 					  + "\\end{document}";
+		
+		SemanticAction sa = ((NonLeaf) root).getProduction().getSemanticAction();
+		sa.doAction((NonLeaf)root, null);
+		
 		return header+((NonLeaf)root).getProduction().getSemanticAction().writeJava((NonLeaf)root)+footer;
 		
 		
@@ -403,6 +531,9 @@ public class Compiler {
 			System.out.println(compile(s));
 		} catch (SyntaxException | TerminalNotFoundException
 				| NonTerminalEmptyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SemanticException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
